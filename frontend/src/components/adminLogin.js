@@ -8,25 +8,28 @@ const AdminLogin = () => {
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            const response = await axios.post('http://localhost:5000/login', {
-                email,
-                password
-            });
 
-            localStorage.setItem('token', response.data.token);  // Store JWT token in localStorage
-            navigate('/admin-dashboard');  // Redirect to admin dashboard
+        try {
+            const response = await axios.post('http://localhost:5000/admin/login', {
+                email,
+                password,
+            });
+            localStorage.setItem('token', response.data.token);
+            setMessage('Login successful!');
+
+            navigate('/admindashboard');
+            
         } catch (error) {
-            setMessage('Invalid credentials');
+            setMessage(error.response?.data?.message || 'Error logging in.');
         }
     };
 
     return (
         <div className="container">
             <h2>Admin Login</h2>
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleSubmit}>
                 <input
                     type="email"
                     placeholder="Email"

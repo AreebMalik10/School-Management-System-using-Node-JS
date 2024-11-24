@@ -9,30 +9,22 @@ const SuperAdmin = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
-        // Get the token (assuming it's stored in localStorage)
-        const token = localStorage.getItem('jwtToken');  // Or use any method where the token is stored
-    
+
         try {
-            const response = await axios.post(
-                'http://localhost:5000/superadmin/create-admin', 
-                { name, email, password },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`  // Add token to headers
-                    }
-                }
-            );
-            setMessage('Admin account created successfully!');
+            const response = await axios.post('http://localhost:5000/superadmin/create-admin', {
+                name,
+                email,
+                password,
+            });
+            setMessage(response.data.message);
         } catch (error) {
-            console.error('Error:', error.response ? error.response.data : error.message);
-            setMessage('Error creating admin account');
+            setMessage(error.response?.data?.message || 'Error creating admin.');
         }
     };
-    
+
     return (
         <div className="container">
-            <h2>Create Admin Account</h2>
+            <h2>Create Admin</h2>
             <form onSubmit={handleSubmit}>
                 <input
                     type="text"
