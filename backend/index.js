@@ -70,6 +70,33 @@ app.post('/superadmin/create-admin', async (req, res) => {
     }
 });
 
+// 3. Super Admin: View All Admins
+app.get('/superadmin/view-admins', verifyToken, async (req, res) => {
+    try {
+        // Fetch all admins from the database
+        const [admins] = await db.promise().query('SELECT * FROM admins');
+        res.status(200).json({ admins });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+// 5. Super Admin: Delete Admin
+app.delete('/superadmin/delete-admin/:id', verifyToken, async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Delete the admin from the database
+        await db.promise().query('DELETE FROM admins WHERE id = ?', [id]);
+
+        res.status(200).json({ message: 'Admin deleted successfully.' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
 // 2. Admin Login
 app.post('/admin/login', async (req, res) => {
     try {
