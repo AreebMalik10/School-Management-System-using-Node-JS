@@ -82,6 +82,49 @@ app.get('/superadmin/view-admins', verifyToken, async (req, res) => {
     }
 });
 
+// 4. Super Admin: Update Admin
+app.put('/superadmin/update-admin/:id', verifyToken, async (req, res) => {
+    const { name, email, password } = req.body;
+    const { id } = req.params; // Admin ID to update
+
+    try {
+        // Hash the new password if provided
+        const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
+
+        // Update admin details in the database
+        let query = 'UPDATE admins SET ';
+        let queryParams = [];
+
+        if (name) {
+            query += 'name = ?, ';
+            queryParams.push(name);
+        }
+
+        if (email) {
+            query += 'email = ?, ';
+            queryParams.push(email);
+        }
+
+        if (password) {
+            query += 'password = ?, ';
+            queryParams.push(hashedPassword);
+        }
+
+        // Remove trailing comma and space
+        query = query.slice(0, -2);
+        query += ' WHERE id = ?';
+        queryParams.push(id);
+
+        await db.promise().query(query, queryParams);
+
+        res.status(200).json({ message: 'Admin updated successfully.' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+
 // 5. Super Admin: Delete Admin
 app.delete('/superadmin/delete-admin/:id', verifyToken, async (req, res) => {
     const { id } = req.params;
