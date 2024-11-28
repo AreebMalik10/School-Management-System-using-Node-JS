@@ -1,13 +1,13 @@
-// routes/adminRoutes.js
 const express = require('express');
-const adminController = require('../controllers/admincontroller');
-const { verifyToken } = require('../middleware/authmiddleware');
+const { createAdminHandler, viewAdminsHandler, updateAdminHandler, deleteAdminHandler } = require('../controllers/superAdminController');
+const verifySuperAdminToken = require('../middlewares/superAdminMiddlware'); // Import token verification middleware
 
 const router = express.Router();
 
-router.post('/create-admin', adminController.createAdmin);
-router.get('/view-admins', verifyToken, admincontroller.viewAdmins);
-router.put('/update-admin/:id', verifyToken, admincontroller.updateAdmin);
-router.delete('/delete-admin/:id', verifyToken, admincontroller.deleteAdmin);
+// Protected routes with token verification
+router.get('/view-admins', verifySuperAdminToken, viewAdminsHandler);
+router.post('/create-admin', verifySuperAdminToken, createAdminHandler);
+router.put('/update-admin/:id', verifySuperAdminToken, updateAdminHandler);
+router.delete('/delete-admin/:id', verifySuperAdminToken, deleteAdminHandler);
 
 module.exports = router;

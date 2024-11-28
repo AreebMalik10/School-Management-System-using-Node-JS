@@ -12,15 +12,18 @@ const AdminLogin = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:5000/admin/login', {
+            const response = await axios.post('http://localhost:5000/auth/login', {
                 email,
                 password,
             });
-            localStorage.setItem('token', response.data.token);
-            setMessage('Login successful!');
 
-            navigate('/admindashboard');
-            
+            // Storing the token and admin details in local storage
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('adminName', response.data.name); // Saving admin's name
+            localStorage.setItem('adminEmail', response.data.email); // Saving admin's email
+
+            setMessage('Login successful!');
+            navigate('/admindashboard'); // Redirect to dashboard after login
         } catch (error) {
             setMessage(error.response?.data?.message || 'Error logging in.');
         }

@@ -14,7 +14,7 @@ const SuperAdmin = () => {
     useEffect(() => {
         const fetchAdmins = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/superadmin/view-admins', {
+                const response = await axios.get('http://localhost:5000/admin/view-admins', {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`,
                     },
@@ -34,7 +34,7 @@ const SuperAdmin = () => {
         try {
             // If we're editing an existing admin, update them
             if (editingAdmin) {
-                const response = await axios.put(`http://localhost:5000/superadmin/update-admin/${editingAdmin.id}`, {
+                const response = await axios.put(`http://localhost:5000/admin/update-admin/${editingAdmin.id}`, {
                     name,
                     email,
                     password,
@@ -46,7 +46,7 @@ const SuperAdmin = () => {
                 setMessage(response.data.message);
             } else {
                 // Otherwise, create a new admin
-                const response = await axios.post('http://localhost:5000/superadmin/create-admin', {
+                const response = await axios.post('http://localhost:5000/admin/create-admin', {
                     name,
                     email,
                     password,
@@ -65,7 +65,7 @@ const SuperAdmin = () => {
             setEditingAdmin(null);
 
             // Re-fetch admins after creating or updating
-            const fetchResponse = await axios.get('http://localhost:5000/superadmin/view-admins', {
+            const fetchResponse = await axios.get('http://localhost:5000/admin/view-admins', {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
@@ -87,7 +87,7 @@ const SuperAdmin = () => {
     // Handle delete action
     const handleDelete = async (id) => {
         try {
-            const response = await axios.delete(`http://localhost:5000/superadmin/delete-admin/${id}`, {
+            const response = await axios.delete(`http://localhost:5000/admin/delete-admin/${id}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
@@ -95,7 +95,7 @@ const SuperAdmin = () => {
             setMessage(response.data.message);
 
             // Re-fetch admins after deletion
-            const fetchResponse = await axios.get('http://localhost:5000/superadmin/view-admins', {
+            const fetchResponse = await axios.get('http://localhost:5000/admin/view-admins', {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
