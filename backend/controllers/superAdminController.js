@@ -1,11 +1,18 @@
 const db = require('../config/db');
+const bcrypt = require('bcryptjs');
 
-// Create Admin Handler
+
+// Create Admin Handler 
 exports.createAdminHandler = async (req, res) => {
     try {
         const { name, email, password } = req.body;
+
+        // Hash the password before saving to the database
+        const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds for bcrypt
+
         const query = `INSERT INTO admins (name, email, password) VALUES (?, ?, ?)`;
-        await db.promise().query(query, [name, email, password]); // Query with parameters
+        await db.promise().query(query, [name, email, hashedPassword]); // Use the hashed password
+
         res.status(201).json({ message: 'Admin created successfully' });
     } catch (err) {
         console.error('Error creating admin:', err);

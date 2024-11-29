@@ -21,6 +21,8 @@ const AdminLogin = () => {
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('adminName', response.data.name); // Saving admin's name
             localStorage.setItem('adminEmail', response.data.email); // Saving admin's email
+            localStorage.setItem('adminId', response.data.adminId); // Save the admin ID after successful login
+
 
             setMessage('Login successful!');
             navigate('/admindashboard'); // Redirect to dashboard after login

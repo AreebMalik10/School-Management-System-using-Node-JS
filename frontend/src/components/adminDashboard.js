@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom'; // For redirecting after logout
 const AdminDashboard = () => {
     const [adminName, setAdminName] = useState('');
     const [adminEmail, setAdminEmail] = useState('');
+    const [students, setStudents] = useState([]); // State for fetched students
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate(); // For redirecting to login page after logout
 
     // State for forms
@@ -79,26 +81,40 @@ const AdminDashboard = () => {
         }
     };
 
-    // Handle student submission
-    const handleStudentSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post('http://localhost:5000/manageroute/createStudent', studentData); // Your backend endpoint
-            alert('Student created successfully');
-            setStudentData({
-                name: '',
-                fatherName: '',
-                regNo: '',
-                contact: '',
-                age: '',
-                username: '',
-                password: ''
-            });
-        } catch (error) {
-            console.error('Error creating student:', error);
-            alert('Error creating student');
-        }
-    };
+  // Handle student submission
+const handleStudentSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Get adminId from localStorage
+    const adminId = localStorage.getItem('adminId');
+    
+    if (!adminId) {
+        alert('Admin ID not found. Please log in again.');
+        navigate('/adminlogin');  // Redirect to login if adminId is not found
+        return;
+    }
+
+    // Include the adminId in the student data
+    const studentDataWithAdminId = { ...studentData, adminId: adminId };
+
+    try {
+        const response = await axios.post('http://localhost:5000/manageroute/createStudent', studentDataWithAdminId); // Your backend endpoint
+        alert('Student created successfully');
+        setStudentData({
+            name: '',
+            fatherName: '',
+            regNo: '',
+            contact: '',
+            age: '',
+            username: '',
+            password: ''
+        });
+    } catch (error) {
+        console.error('Error creating student:', error);
+        alert('Error creating student');
+    }
+};
+
 
     // Handle teacher submission
     const handleTeacherSubmit = async (e) => {
@@ -141,6 +157,19 @@ const AdminDashboard = () => {
         }
     };
 
+     // Fetch students
+     useEffect(() => {
+        // Admin ke students ko fetch karna
+        axios.get('http://localhost:5000/manageroute/getStudents')
+            .then(response => {
+                setStudents(response.data); // Admin ke students ki list set karna
+            })
+            .catch(error => {
+                console.error('Error fetching students:', error);
+            });
+    }, []);
+    
+    
     return (
         <div>
             <h1>Admin Dashboard</h1>
@@ -185,6 +214,21 @@ const AdminDashboard = () => {
                 <input type="password" name="password" value={parentData.password} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Password" required />
                 <button type="submit">Create Parent</button>
             </form>
+
+            {/* List Students */}
+           
+            <h3>List of Students</h3>
+            {loading ? (
+                <p>Loading students...</p>
+            ) : (
+                <ul>
+                    {students.length > 0 ? (
+                        students.map((student) => <li key={student.id}>{student.name}</li>)
+                    ) : (
+                        <li>No students found</li>
+                    )}
+                </ul>
+            )}
         </div>
     );
 };
