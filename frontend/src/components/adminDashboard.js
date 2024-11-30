@@ -7,6 +7,8 @@ const AdminDashboard = () => {
     const [adminEmail, setAdminEmail] = useState('');
     const [students, setStudents] = useState([]); // State for fetched students
     const [loading, setLoading] = useState(false);
+    const [studentIdToUpdate, setStudentIdToUpdate] = useState(null);
+    const [isUpdating, setIsUpdating] = useState(false);
     const navigate = useNavigate(); // For redirecting to login page after logout
 
     // State for forms
@@ -81,24 +83,23 @@ const AdminDashboard = () => {
         }
     };
 
-  // Handle student submission
+// Handle student submission
 const handleStudentSubmit = async (e) => {
     e.preventDefault();
     
-    // Get adminId from localStorage
-    const adminId = localStorage.getItem('adminId');
+    const adminId = localStorage.getItem('adminId'); // Admin ID from localStorage
     
     if (!adminId) {
         alert('Admin ID not found. Please log in again.');
-        navigate('/adminlogin');  // Redirect to login if adminId is not found
+        navigate('/adminlogin');
         return;
     }
 
-    // Include the adminId in the student data
-    const studentDataWithAdminId = { ...studentData, adminId: adminId };
+    // Include adminId in student data
+    const studentDataWithAdminId = { ...studentData, adminId }; 
 
     try {
-        const response = await axios.post('http://localhost:5000/manageroute/createStudent', studentDataWithAdminId); // Your backend endpoint
+        const response = await axios.post('http://localhost:5000/manageroute/createStudent', studentDataWithAdminId);
         alert('Student created successfully');
         setStudentData({
             name: '',
@@ -159,15 +160,77 @@ const handleStudentSubmit = async (e) => {
 
      // Fetch students
      useEffect(() => {
-        // Admin ke students ko fetch karna
-        axios.get('http://localhost:5000/manageroute/getStudents')
+        const adminId = localStorage.getItem('adminId'); // Admin ID from localStorage
+    
+        if (!adminId) {
+            alert('Admin ID not found. Please log in again.');
+            navigate('/adminlogin');
+            return;
+        }
+    
+        // Fetch students for specific admin
+        axios.get(`http://localhost:5000/manageroute/getStudents?adminId=${adminId}`)
             .then(response => {
-                setStudents(response.data); // Admin ke students ki list set karna
+                setStudents(response.data);
             })
             .catch(error => {
                 console.error('Error fetching students:', error);
             });
     }, []);
+
+    const handleUpdate = (student) => {
+        // Populate the update form with the current student data
+        setStudentData({
+            name: student.name,
+            fatherName: student.fatherName,
+            regNo: student.regNo,
+            contact: student.contact,
+            age: student.age,
+            username: student.username,
+            password: '' // Password field will be updated by the admin
+        });
+    
+        setIsUpdating(true); // Show the update form
+        setStudentIdToUpdate(student.id); // Save the student ID for updating
+    };
+    
+    // Handle Update form submit
+    const handleStudentUpdate = async (e) => {
+        e.preventDefault();
+    
+        try {
+            const response = await axios.put(
+                `http://localhost:5000/manageroute/updateStudent/${studentIdToUpdate}`,
+                studentData
+            );
+            alert(response.data.message);
+            setIsUpdating(false);
+            setStudents(
+                students.map((student) =>
+                    student.id === studentIdToUpdate ? { ...student, ...studentData } : student
+                )
+            );
+        } catch (error) {
+            console.error('Error updating student:', error);
+            alert('Error updating student');
+        }
+    };
+    
+
+
+    
+    const handleDelete = async (studentId) => {
+        try {
+            const response = await axios.delete(`http://localhost:5000/manageroute/deleteStudent/${studentId}`);
+            alert(response.data.message);
+            // Student list ko refresh karen
+            setStudents(students.filter((student) => student.id !== studentId));
+        } catch (error) {
+            console.error('Error deleting student:', error);
+            alert('Error deleting student');
+        }
+    };
+    
     
     
     return (
@@ -215,20 +278,98 @@ const handleStudentSubmit = async (e) => {
                 <button type="submit">Create Parent</button>
             </form>
 
-            {/* List Students */}
-           
-            <h3>List of Students</h3>
+            <h3>Admin Dashboard</h3>
+            <h4>List of Students</h4>
             {loading ? (
                 <p>Loading students...</p>
             ) : (
                 <ul>
                     {students.length > 0 ? (
-                        students.map((student) => <li key={student.id}>{student.name}</li>)
+                        students.map((student) => (
+                            <li key={student.id}>
+                                <p>Name: {student.name}</p>
+                                <p>Father's Name: {student.fatherName}</p>
+                                <p>Registration No: {student.regNo}</p>
+                                <p>Contact: {student.contact}</p>
+                                <p>Age: {student.age}</p>
+                                <p>Username: {student.username}</p>
+                                <p>Password: {student.password}</p>
+
+                                {/* Update Button */}
+                                <button onClick={() => handleUpdate(student)}>Update</button>
+
+                                {/* Delete Button */}
+                                <button onClick={() => handleDelete(student.id)}>Delete</button>
+                            </li>
+                        ))
                     ) : (
                         <li>No students found</li>
                     )}
                 </ul>
             )}
+
+            {/* Update Student Form */}
+            {isUpdating && (
+                <div>
+                    <h4>Update Student</h4>
+                    <form onSubmit={handleStudentUpdate}>
+                        <input
+                            type="text"
+                            value={studentData.name}
+                            onChange={(e) => setStudentData({ ...studentData, name: e.target.value })}
+                            placeholder="Name"
+                            required
+                        />
+                        <input
+                            type="text"
+                            value={studentData.fatherName}
+                            onChange={(e) => setStudentData({ ...studentData, fatherName: e.target.value })}
+                            placeholder="Father's Name"
+                            required
+                        />
+                        <input
+                            type="text"
+                            value={studentData.regNo}
+                            onChange={(e) => setStudentData({ ...studentData, regNo: e.target.value })}
+                            placeholder="Registration No"
+                            required
+                        />
+                        <input
+                            type="text"
+                            value={studentData.contact}
+                            onChange={(e) => setStudentData({ ...studentData, contact: e.target.value })}
+                            placeholder="Contact"
+                            required
+                        />
+                        <input
+                            type="number"
+                            value={studentData.age}
+                            onChange={(e) => setStudentData({ ...studentData, age: e.target.value })}
+                            placeholder="Age"
+                            required
+                        />
+                        <input
+                            type="text"
+                            value={studentData.username}
+                            onChange={(e) => setStudentData({ ...studentData, username: e.target.value })}
+                            placeholder="Username"
+                            required
+                        />
+                         <input
+                            type="text"
+                            value={studentData.password}
+                            onChange={(e) => setStudentData({ ...studentData, password: e.target.value })}
+                            placeholder="Password"
+                            required
+                        />
+                        <button type="submit">Update</button>
+                        <button type="button" onClick={() => setIsUpdating(false)}>
+                            Cancel
+                        </button>
+                    </form>
+                </div>
+            )}
+
         </div>
     );
 };

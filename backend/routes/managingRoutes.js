@@ -16,16 +16,18 @@ const hashPassword = async (password) => {
 
 // Create student route
 router.post('/createStudent', async (req, res) => {
-    const { name, fatherName, regNo, contact, age, username, password } = req.body;
+    const { name, fatherName, regNo, contact, age, username, password, adminId } = req.body;
+
+    if (!adminId) {
+        return res.status(400).json({ message: 'Admin ID is required' });
+    }
 
     try {
-        // Hash password before saving to DB
         const hashedPassword = await hashPassword(password);
+        const query = `INSERT INTO students (name, fatherName, regNo, contact, age, username, password, adminId) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
-        const query = `INSERT INTO students (name, fatherName, regNo, contact, age, username, password) 
-                       VALUES (?, ?, ?, ?, ?, ?, ?)`;
-
-        db.query(query, [name, fatherName, regNo, contact, age, username, hashedPassword], (err, result) => {
+        db.query(query, [name, fatherName, regNo, contact, age, username, hashedPassword, adminId], (err, result) => {
             if (err) {
                 console.error('Error creating student:', err);
                 return res.status(500).json({ message: 'Error creating student' });
@@ -37,6 +39,8 @@ router.post('/createStudent', async (req, res) => {
         res.status(500).json({ message: 'Error creating student' });
     }
 });
+
+
 
 // Create teacher route
 router.post('/createTeacher', async (req, res) => {
@@ -86,11 +90,18 @@ router.post('/createParent', async (req, res) => {
     }
 });
 
+
 // Get students route
 router.get('/getStudents', (req, res) => {
-    const query = 'SELECT * FROM students';
+    const adminId = req.query.adminId;
 
-    db.query(query, (err, results) => {
+    if (!adminId) {
+        return res.status(400).json({ message: 'Admin ID is required' });
+    }
+
+    const query = 'SELECT * FROM students WHERE adminId = ?';
+    
+    db.query(query, [adminId], (err, results) => {
         if (err) {
             console.error('Error fetching students:', err);
             return res.status(500).json({ message: 'Error fetching students' });
@@ -98,5 +109,49 @@ router.get('/getStudents', (req, res) => {
         res.status(200).json(results);
     });
 });
+
+// Update student route
+router.put('/updateStudent/:id', async (req, res) => {
+    const studentId = req.params.id;
+    const { name, fatherName, regNo, contact, age, username, password } = req.body;
+
+    // Hash the password if it is being updated
+    let hashedPassword = password;
+    if (password) {
+        const salt = await bcrypt.genSalt(10);
+        hashedPassword = await bcrypt.hash(password, salt);
+    }
+
+    const query = `
+        UPDATE students
+        SET name = ?, fatherName = ?, regNo = ?, contact = ?, age = ?, username = ?, password = ?
+        WHERE id = ?
+    `;
+    
+    db.query(query, [name, fatherName, regNo, contact, age, username, hashedPassword, studentId], (err, result) => {
+        if (err) {
+            console.error('Error updating student:', err);
+            return res.status(500).json({ message: 'Error updating student' });
+        }
+        res.status(200).json({ message: 'Student updated successfully' });
+    });
+});
+
+
+// Delete student route
+router.delete('/deleteStudent/:id', (req, res) => {
+    const studentId = req.params.id;
+
+    const query = 'DELETE FROM students WHERE id = ?';
+    
+    db.query(query, [studentId], (err, result) => {
+        if (err) {
+            console.error('Error deleting student:', err);
+            return res.status(500).json({ message: 'Error deleting student' });
+        }
+        res.status(200).json({ message: 'Student deleted successfully' });
+    });
+});
+
 
 module.exports = router;
