@@ -16,7 +16,7 @@ const hashPassword = async (password) => {
 
 // Create student route
 router.post('/createStudent', async (req, res) => {
-    const { name, fatherName, regNo, contact, age, username, password, adminId } = req.body;
+    const { name, fatherName, regNo, contact, age, username, password, adminId, class: studentClass, section } = req.body;
 
     if (!adminId) {
         return res.status(400).json({ message: 'Admin ID is required' });
@@ -24,10 +24,10 @@ router.post('/createStudent', async (req, res) => {
 
     try {
         const hashedPassword = await hashPassword(password);
-        const query = `INSERT INTO students (name, fatherName, regNo, contact, age, username, password, adminId) 
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+        const query = `INSERT INTO students (name, fatherName, regNo, contact, age, username, password, adminId, class, section) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-        db.query(query, [name, fatherName, regNo, contact, age, username, hashedPassword, adminId], (err, result) => {
+        db.query(query, [name, fatherName, regNo, contact, age, username, hashedPassword, adminId, studentClass, section], (err, result) => {
             if (err) {
                 console.error('Error creating student:', err);
                 return res.status(500).json({ message: 'Error creating student' });
@@ -39,6 +39,7 @@ router.post('/createStudent', async (req, res) => {
         res.status(500).json({ message: 'Error creating student' });
     }
 });
+
 
 
 
@@ -113,9 +114,8 @@ router.get('/getStudents', (req, res) => {
 // Update student route
 router.put('/updateStudent/:id', async (req, res) => {
     const studentId = req.params.id;
-    const { name, fatherName, regNo, contact, age, username, password } = req.body;
+    const { name, fatherName, regNo, contact, age, username, password, class: studentClass, section } = req.body;
 
-    // Hash the password if it is being updated
     let hashedPassword = password;
     if (password) {
         const salt = await bcrypt.genSalt(10);
@@ -124,11 +124,11 @@ router.put('/updateStudent/:id', async (req, res) => {
 
     const query = `
         UPDATE students
-        SET name = ?, fatherName = ?, regNo = ?, contact = ?, age = ?, username = ?, password = ?
+        SET name = ?, fatherName = ?, regNo = ?, contact = ?, age = ?, username = ?, password = ?, class = ?, section = ?
         WHERE id = ?
     `;
-    
-    db.query(query, [name, fatherName, regNo, contact, age, username, hashedPassword, studentId], (err, result) => {
+
+    db.query(query, [name, fatherName, regNo, contact, age, username, hashedPassword, studentClass, section, studentId], (err, result) => {
         if (err) {
             console.error('Error updating student:', err);
             return res.status(500).json({ message: 'Error updating student' });
@@ -136,6 +136,7 @@ router.put('/updateStudent/:id', async (req, res) => {
         res.status(200).json({ message: 'Student updated successfully' });
     });
 });
+
 
 
 // Delete student route

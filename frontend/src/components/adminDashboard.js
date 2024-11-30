@@ -83,38 +83,45 @@ const AdminDashboard = () => {
         }
     };
 
-// Handle student submission
-const handleStudentSubmit = async (e) => {
-    e.preventDefault();
-    
-    const adminId = localStorage.getItem('adminId'); // Admin ID from localStorage
-    
-    if (!adminId) {
-        alert('Admin ID not found. Please log in again.');
-        navigate('/adminlogin');
-        return;
-    }
+    // Handle student submission
+    const handleStudentSubmit = async (e) => {
+        e.preventDefault();
 
-    // Include adminId in student data
-    const studentDataWithAdminId = { ...studentData, adminId }; 
+        const adminId = localStorage.getItem('adminId'); // Admin ID from localStorage
 
-    try {
-        const response = await axios.post('http://localhost:5000/manageroute/createStudent', studentDataWithAdminId);
-        alert('Student created successfully');
-        setStudentData({
-            name: '',
-            fatherName: '',
-            regNo: '',
-            contact: '',
-            age: '',
-            username: '',
-            password: ''
-        });
-    } catch (error) {
-        console.error('Error creating student:', error);
-        alert('Error creating student');
-    }
-};
+        if (!adminId) {
+            alert('Admin ID not found. Please log in again.');
+            navigate('/adminlogin');
+            return;
+        }
+
+        const studentDataWithAdminId = {
+            ...studentData,
+            adminId,
+            class: studentData.class, // Add class
+            section: studentData.section // Add section
+        };
+
+        try {
+            const response = await axios.post('http://localhost:5000/manageroute/createStudent', studentDataWithAdminId);
+            alert('Student created successfully');
+            setStudentData({
+                name: '',
+                fatherName: '',
+                regNo: '',
+                contact: '',
+                age: '',
+                username: '',
+                password: '',
+                class: '',  // Reset class
+                section: '' // Reset section
+            });
+        } catch (error) {
+            console.error('Error creating student:', error);
+            alert('Error creating student');
+        }
+    };
+
 
 
     // Handle teacher submission
@@ -158,16 +165,16 @@ const handleStudentSubmit = async (e) => {
         }
     };
 
-     // Fetch students
-     useEffect(() => {
+    // Fetch students
+    useEffect(() => {
         const adminId = localStorage.getItem('adminId'); // Admin ID from localStorage
-    
+
         if (!adminId) {
             alert('Admin ID not found. Please log in again.');
             navigate('/adminlogin');
             return;
         }
-    
+
         // Fetch students for specific admin
         axios.get(`http://localhost:5000/manageroute/getStudents?adminId=${adminId}`)
             .then(response => {
@@ -187,17 +194,19 @@ const handleStudentSubmit = async (e) => {
             contact: student.contact,
             age: student.age,
             username: student.username,
-            password: '' // Password field will be updated by the admin
+            password: '', // Password field will be updated by the admin
+            class: student.class,
+            section: student.section
         });
-    
+
         setIsUpdating(true); // Show the update form
         setStudentIdToUpdate(student.id); // Save the student ID for updating
     };
-    
+
     // Handle Update form submit
     const handleStudentUpdate = async (e) => {
         e.preventDefault();
-    
+
         try {
             const response = await axios.put(
                 `http://localhost:5000/manageroute/updateStudent/${studentIdToUpdate}`,
@@ -215,10 +224,10 @@ const handleStudentSubmit = async (e) => {
             alert('Error updating student');
         }
     };
-    
 
 
-    
+
+
     const handleDelete = async (studentId) => {
         try {
             const response = await axios.delete(`http://localhost:5000/manageroute/deleteStudent/${studentId}`);
@@ -230,9 +239,9 @@ const handleStudentSubmit = async (e) => {
             alert('Error deleting student');
         }
     };
-    
-    
-    
+
+
+
     return (
         <div>
             <h1>Admin Dashboard</h1>
@@ -242,6 +251,7 @@ const handleStudentSubmit = async (e) => {
 
             {/* Student Form */}
             <h3>Create Student</h3>
+            <h3>Create Student</h3>
             <form onSubmit={handleStudentSubmit}>
                 <input type="text" name="name" value={studentData.name} onChange={(e) => handleInputChange(e, 'student')} placeholder="Student Name" required />
                 <input type="text" name="fatherName" value={studentData.fatherName} onChange={(e) => handleInputChange(e, 'student')} placeholder="Father's Name" required />
@@ -250,8 +260,11 @@ const handleStudentSubmit = async (e) => {
                 <input type="number" name="age" value={studentData.age} onChange={(e) => handleInputChange(e, 'student')} placeholder="Age" required />
                 <input type="text" name="username" value={studentData.username} onChange={(e) => handleInputChange(e, 'student')} placeholder="Username" required />
                 <input type="password" name="password" value={studentData.password} onChange={(e) => handleInputChange(e, 'student')} placeholder="Password" required />
+                <input type="text" name="class" value={studentData.class} onChange={(e) => handleInputChange(e, 'student')} placeholder="Class" required />
+                <input type="text" name="section" value={studentData.section} onChange={(e) => handleInputChange(e, 'student')} placeholder="Section" required />
                 <button type="submit">Create Student</button>
             </form>
+
 
             {/* Teacher Form */}
             <h3>Create Teacher</h3>
@@ -293,12 +306,9 @@ const handleStudentSubmit = async (e) => {
                                 <p>Contact: {student.contact}</p>
                                 <p>Age: {student.age}</p>
                                 <p>Username: {student.username}</p>
-                                <p>Password: {student.password}</p>
-
-                                {/* Update Button */}
+                                <p>Class: {student.class}</p>  {/* Display Class */}
+                                <p>Section: {student.section}</p>  {/* Display Section */}
                                 <button onClick={() => handleUpdate(student)}>Update</button>
-
-                                {/* Delete Button */}
                                 <button onClick={() => handleDelete(student.id)}>Delete</button>
                             </li>
                         ))
@@ -306,6 +316,7 @@ const handleStudentSubmit = async (e) => {
                         <li>No students found</li>
                     )}
                 </ul>
+
             )}
 
             {/* Update Student Form */}
@@ -355,13 +366,28 @@ const handleStudentSubmit = async (e) => {
                             placeholder="Username"
                             required
                         />
-                         <input
+                        <input
                             type="text"
                             value={studentData.password}
                             onChange={(e) => setStudentData({ ...studentData, password: e.target.value })}
                             placeholder="Password"
                             required
                         />
+                        <input
+                            type="text"
+                            value={studentData.class}
+                            onChange={(e) => setStudentData({ ...studentData, class: e.target.value })}
+                            placeholder="Class"
+                            required
+                        />
+                        <input
+                            type="text"
+                            value={studentData.section}
+                            onChange={(e) => setStudentData({ ...studentData, section: e.target.value })}
+                            placeholder="Section"
+                            required
+                        />
+
                         <button type="submit">Update</button>
                         <button type="button" onClick={() => setIsUpdating(false)}>
                             Cancel
