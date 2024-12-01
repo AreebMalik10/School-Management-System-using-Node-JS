@@ -73,16 +73,16 @@ router.post('/createTeacher', async (req, res) => {
 
 // Create parent route
 router.post('/createParent', async (req, res) => {
-    const { name, childrenName, occupation, contact, username, password } = req.body;
+    const { name, childrenName, occupation, contact, username, password, adminId } = req.body;
 
     try {
         // Hash password before saving to DB
         const hashedPassword = await hashPassword(password);
 
-        const query = `INSERT INTO parents (name, childrenName, occupation, contact, username, password) 
-                       VALUES (?, ?, ?, ?, ?, ?)`;
+        const query = `INSERT INTO parents (name, childrenName, occupation, contact, username, password, adminId) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
-        db.query(query, [name, childrenName, occupation, contact, username, hashedPassword], (err, result) => {
+        db.query(query, [name, childrenName, occupation, contact, username, hashedPassword, adminId], (err, result) => {
             if (err) {
                 console.error('Error creating parent:', err);
                 return res.status(500).json({ message: 'Error creating parent' });
@@ -94,6 +94,7 @@ router.post('/createParent', async (req, res) => {
         res.status(500).json({ message: 'Error creating parent' });
     }
 });
+
 
 
 // Get students route
@@ -228,6 +229,64 @@ router.delete('/deleteTeacher/:id', (req, res) => {
         res.status(200).json({ message: 'Teacher deleted successfully' });
     });
 });
+
+// Fetch parents for a specific admin
+router.get('/getParentsByAdmin/:adminId', (req, res) => {
+    const { adminId } = req.params;
+
+    const query = `SELECT * FROM parents WHERE adminId = ?`;
+    db.query(query, [adminId], (err, results) => {
+        if (err) {
+            console.error('Error fetching parents:', err);
+            return res.status(500).json({ message: 'Error fetching parents' });
+        }
+        res.status(200).json(results);
+    });
+});
+
+
+// Update parent details
+router.put('/updateParent/:parentId', async (req, res) => {
+    const { parentId } = req.params;
+    const { name, childrenName, occupation, contact, username, password } = req.body;
+
+    try {
+        const hashedPassword = password ? await hashPassword(password) : null;
+
+        const query = `UPDATE parents 
+                       SET name = ?, childrenName = ?, occupation = ?, contact = ?, username = ?, password = ? 
+                       WHERE id = ?`;
+
+        db.query(query, [name, childrenName, occupation, contact, username, hashedPassword, parentId], (err, result) => {
+            if (err) {
+                console.error('Error updating parent:', err);
+                return res.status(500).json({ message: 'Error updating parent' });
+            }
+            res.status(200).json({ message: 'Parent updated successfully' });
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error updating parent' });
+    }
+});
+
+
+
+// Delete parent
+router.delete('/deleteParent/:parentId', (req, res) => {
+    const { parentId } = req.params;
+
+    const query = `DELETE FROM parents WHERE id = ?`;
+    db.query(query, [parentId], (err, result) => {
+        if (err) {
+            console.error('Error deleting parent:', err);
+            return res.status(500).json({ message: 'Error deleting parent' });
+        }
+        res.status(200).json({ message: 'Parent deleted successfully' });
+    });
+});
+
+
 
 
 

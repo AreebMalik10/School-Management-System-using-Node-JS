@@ -12,6 +12,17 @@ const AdminDashboard = () => {
     const navigate = useNavigate(); // For redirecting to login page after logout
     const [teachers, setTeachers] = useState([]);
     const [editingTeacher, setEditingTeacher] = useState(null);
+    const [parents, setParents] = useState([]);
+    const [updatedName, setUpdatedName] = useState('');
+    const [updatedChildrenName, setUpdatedChildrenName] = useState('');
+    const [updatedOccupation, setUpdatedOccupation] = useState('');
+    const [updatedContact, setUpdatedContact] = useState('');
+    const [updatedUsername, setUpdatedUsername] = useState('');
+    const [updatedPassword, setUpdatedPassword] = useState('');
+    const [editingParent, setEditingParent] = useState(null);
+
+
+
 
 
     // State for forms
@@ -164,8 +175,21 @@ const AdminDashboard = () => {
     // Handle parent submission
     const handleParentSubmit = async (e) => {
         e.preventDefault();
+
+        // Get adminId from localStorage
+        const adminId = localStorage.getItem('adminId');
+        if (!adminId) {
+            alert('Admin ID not found. Please log in again.');
+            return;
+        }
+
+        const dataToSend = {
+            ...parentData,
+            adminId: adminId // Adding adminId to the data
+        };
+
         try {
-            const response = await axios.post('http://localhost:5000/manageroute/createParent', parentData); // Your backend endpoint
+            const response = await axios.post('http://localhost:5000/manageroute/createParent', dataToSend);
             alert('Parent created successfully');
             setParentData({
                 name: '',
@@ -180,6 +204,7 @@ const AdminDashboard = () => {
             alert('Error creating parent');
         }
     };
+
 
     // Fetch students
     useEffect(() => {
@@ -304,6 +329,80 @@ const AdminDashboard = () => {
             console.error('Error deleting teacher:', error);
         }
     };
+
+
+    // Fetch parents for the logged-in admin
+    useEffect(() => {
+        const adminId = localStorage.getItem('adminId');
+
+        if (!adminId) {
+            alert('Admin ID not found. Please log in again.');
+            navigate('/adminlogin');
+            return;
+        }
+
+        const fetchParents = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5000/manageroute/getParentsByAdmin/${adminId}`);
+                setParents(response.data);
+            } catch (error) {
+                console.error('Error fetching parents:', error);
+            }
+        };
+
+        fetchParents();
+    }, []);
+
+    const handleParentUpdate = async (parentId) => {
+        const updatedParentData = {
+            name: updatedName,
+            childrenName: updatedChildrenName,
+            occupation: updatedOccupation,
+            contact: updatedContact,
+            username: updatedUsername,
+            password: updatedPassword, // Optionally update password
+        };
+    
+        try {
+            await axios.put(`http://localhost:5000/manageroute/updateParent/${parentId}`, updatedParentData);
+            alert('Parent updated successfully');
+            // Optionally reload or update the UI with the new data after the update
+            setParents(parents.map((parent) =>
+                parent.id === parentId ? { ...parent, ...updatedParentData } : parent
+            ));
+            setEditingParent(null); // Close the form after updating
+        } catch (error) {
+            console.error('Error updating parent:', error);
+            alert('Error updating parent');
+        }
+    };
+
+    // Set the editing parent data into the form fields
+    const handleEditParent = (parent) => {
+        setEditingParent(parent);
+        setUpdatedName(parent.name);
+        setUpdatedChildrenName(parent.childrenName);
+        setUpdatedOccupation(parent.occupation);
+        setUpdatedContact(parent.contact);
+        setUpdatedUsername(parent.username);
+        setUpdatedPassword(''); // Reset password field (optional)
+    };
+
+
+
+    // Handle parent delete
+    const handleParentDelete = async (parentId) => {
+        try {
+            await axios.delete(`http://localhost:5000/manageroute/deleteParent/${parentId}`);
+            alert('Parent deleted successfully');
+            // Optionally update the UI to reflect the deletion (e.g., by filtering out the deleted parent)
+        } catch (error) {
+            console.error('Error deleting parent:', error);
+            alert('Error deleting parent');
+        }
+    };
+
+
 
 
 
@@ -553,6 +652,84 @@ const AdminDashboard = () => {
                 </ul>
 
             )}
+
+           {/* List of Parents */}
+           <h4>List of Parents</h4>
+            {loading ? (
+                <p>Loading parents...</p>
+            ) : (
+                <ul>
+                    {parents.length > 0 ? (
+                        parents.map((parent) => (
+                            <li key={parent.id}>
+                                <p>Name: {parent.name}</p>
+                                <p>Children: {parent.childrenName}</p>
+                                <p>Occupation: {parent.occupation}</p>
+                                <p>Contact: {parent.contact}</p>
+                                <p>Username: {parent.username}</p>
+                                <button onClick={() => handleEditParent(parent)}>Update</button>
+                                <button onClick={() => handleParentDelete(parent.id)}>Delete</button>
+                            </li>
+                        ))
+                    ) : (
+                        <li>No parents found</li>
+                    )}
+
+                    {/* Edit Parent Form */}
+                    {editingParent && (
+                        <div>
+                            <h3>Update Parent</h3>
+                            <form onSubmit={(e) => { e.preventDefault(); handleParentUpdate(editingParent.id); }}>
+                                <input
+                                    type="text"
+                                    value={updatedName}
+                                    onChange={(e) => setUpdatedName(e.target.value)}
+                                    placeholder="Name"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    value={updatedChildrenName}
+                                    onChange={(e) => setUpdatedChildrenName(e.target.value)}
+                                    placeholder="Children's Name"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    value={updatedOccupation}
+                                    onChange={(e) => setUpdatedOccupation(e.target.value)}
+                                    placeholder="Occupation"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    value={updatedContact}
+                                    onChange={(e) => setUpdatedContact(e.target.value)}
+                                    placeholder="Contact"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    value={updatedUsername}
+                                    onChange={(e) => setUpdatedUsername(e.target.value)}
+                                    placeholder="Username"
+                                    required
+                                />
+                                <input
+                                    type="password"
+                                    value={updatedPassword}
+                                    onChange={(e) => setUpdatedPassword(e.target.value)}
+                                    placeholder="Password (optional)"
+                                />
+                                <button type="submit">Update</button>
+                                <button type="button" onClick={() => setEditingParent(null)}>Cancel</button>
+                            </form>
+                        </div>
+                    )}
+                </ul>
+            )}
+
+
 
         </div>
     );
