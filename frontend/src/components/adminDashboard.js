@@ -10,6 +10,9 @@ const AdminDashboard = () => {
     const [studentIdToUpdate, setStudentIdToUpdate] = useState(null);
     const [isUpdating, setIsUpdating] = useState(false);
     const navigate = useNavigate(); // For redirecting to login page after logout
+    const [teachers, setTeachers] = useState([]);
+    const [editingTeacher, setEditingTeacher] = useState(null);
+
 
     // State for forms
     const [studentData, setStudentData] = useState({
@@ -127,8 +130,19 @@ const AdminDashboard = () => {
     // Handle teacher submission
     const handleTeacherSubmit = async (e) => {
         e.preventDefault();
+
+        const adminId = localStorage.getItem('adminId');
+
+        if (!adminId) {
+            alert('Admin ID not found. Please log in again.');
+            navigate('/adminlogin');
+            return;
+        }
+
+        const teacherDataWithAdminId = { ...teacherData, adminId };
+
         try {
-            const response = await axios.post('http://localhost:5000/manageroute/createTeacher', teacherData); // Your backend endpoint
+            const response = await axios.post('http://localhost:5000/manageroute/createTeacher', teacherDataWithAdminId);
             alert('Teacher created successfully');
             setTeacherData({
                 name: '',
@@ -144,6 +158,8 @@ const AdminDashboard = () => {
             alert('Error creating teacher');
         }
     };
+
+
 
     // Handle parent submission
     const handleParentSubmit = async (e) => {
@@ -239,6 +255,56 @@ const AdminDashboard = () => {
             alert('Error deleting student');
         }
     };
+
+    //teachers ko fetch karwa rahay
+    useEffect(() => {
+        const adminId = localStorage.getItem('adminId');
+
+        if (!adminId) {
+            alert('Admin ID not found. Please log in again.');
+            navigate('/adminlogin');
+            return;
+        }
+
+        const fetchTeachers = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5000/manageroute/getTeachersByAdmin/${adminId}`);
+                setTeachers(response.data);
+            } catch (error) {
+                console.error('Error fetching teachers:', error);
+            }
+        };
+
+        fetchTeachers();
+    }, []);
+
+    // Handle teacher update
+    const handleUpdateTeacher = async (id) => {
+        try {
+            await axios.put(`http://localhost:5000/manageroute/updateTeacher/${id}`, editingTeacher);
+            alert('Teacher updated successfully');
+            setEditingTeacher(null);
+            setTeachers((prev) =>
+                prev.map((teacher) =>
+                    teacher.id === id ? { ...teacher, ...editingTeacher } : teacher
+                )
+            );
+        } catch (error) {
+            console.error('Error updating teacher:', error);
+        }
+    };
+
+    // Handle teacher delete
+    const handleDeleteTeacher = async (id) => {
+        try {
+            await axios.delete(`http://localhost:5000/manageroute/deleteTeacher/${id}`);
+            alert('Teacher deleted successfully');
+            setTeachers((prev) => prev.filter((teacher) => teacher.id !== id));
+        } catch (error) {
+            console.error('Error deleting teacher:', error);
+        }
+    };
+
 
 
 
@@ -394,6 +460,98 @@ const AdminDashboard = () => {
                         </button>
                     </form>
                 </div>
+            )}
+
+            <h4>List of Teachers</h4>
+            {loading ? (
+                <p>Loading teachers...</p>
+            ) : (
+                <ul>
+                    {teachers.length > 0 ? (
+                        teachers.map((teacher) => (
+                            <li key={teacher.id}>
+                                <p>Name: {teacher.name}</p>
+                                <p>Contact: {teacher.contact}</p>
+                                <p>Education: {teacher.education}</p>
+                                <p>Experience: {teacher.experience}</p>
+                                <p>Pay: {teacher.pay}</p>
+                                <p>Username: {teacher.username}</p>
+                                <button onClick={() => setEditingTeacher(teacher)}>Update</button>
+                                <button onClick={() => handleDeleteTeacher(teacher.id)}>Delete</button>
+
+
+                            </li>
+                        ))
+                    ) : (
+                        <li>No teachers found</li>
+                    )}
+                    {/* Edit Teacher Form */}
+                    {editingTeacher && (
+                        <div>
+                            <h3>Update Teacher</h3>
+                            <form onSubmit={() => handleUpdateTeacher(editingTeacher.id)}>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={editingTeacher.name}
+                                    onChange={(e) => setEditingTeacher({ ...editingTeacher, name: e.target.value })}
+                                    placeholder="Name"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    name="contact"
+                                    value={editingTeacher.contact}
+                                    onChange={(e) => setEditingTeacher({ ...editingTeacher, contact: e.target.value })}
+                                    placeholder="Contact"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    name="education"
+                                    value={editingTeacher.education}
+                                    onChange={(e) => setEditingTeacher({ ...editingTeacher, education: e.target.value })}
+                                    placeholder="Education"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    name="experience"
+                                    value={editingTeacher.experience}
+                                    onChange={(e) => setEditingTeacher({ ...editingTeacher, experience: e.target.value })}
+                                    placeholder="Experience"
+                                    required
+                                />
+                                <input
+                                    type="number"
+                                    name="pay"
+                                    value={editingTeacher.pay}
+                                    onChange={(e) => setEditingTeacher({ ...editingTeacher, pay: e.target.value })}
+                                    placeholder="Pay"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    name="username"
+                                    value={editingTeacher.username}
+                                    onChange={(e) => setEditingTeacher({ ...editingTeacher, username: e.target.value })}
+                                    placeholder="Username"
+                                    required
+                                />
+                                <input
+                                    type="password"
+                                    name="password"
+                                    value={editingTeacher.password}
+                                    onChange={(e) => setEditingTeacher({ ...editingTeacher, password: e.target.value })}
+                                />
+                                <button type="submit">Update</button>
+                                <button type="button" onClick={() => setEditingTeacher(null)}>Cancel</button>
+                            </form>
+                        </div>
+                    )}
+
+                </ul>
+
             )}
 
         </div>

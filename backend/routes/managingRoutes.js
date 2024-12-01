@@ -45,16 +45,19 @@ router.post('/createStudent', async (req, res) => {
 
 // Create teacher route
 router.post('/createTeacher', async (req, res) => {
-    const { name, contact, education, experience, pay, username, password } = req.body;
+    const { name, contact, education, experience, pay, username, password, adminId } = req.body;
+
+    if (!adminId) {
+        return res.status(400).json({ message: 'Admin ID is required' });
+    }
 
     try {
-        // Hash password before saving to DB
         const hashedPassword = await hashPassword(password);
 
-        const query = `INSERT INTO teachers (name, contact, education, experience, pay, username, password) 
-                       VALUES (?, ?, ?, ?, ?, ?, ?)`;
+        const query = `INSERT INTO teachers (name, contact, education, experience, pay, username, password, adminId) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
-        db.query(query, [name, contact, education, experience, pay, username, hashedPassword], (err, result) => {
+        db.query(query, [name, contact, education, experience, pay, username, hashedPassword, adminId], (err, result) => {
             if (err) {
                 console.error('Error creating teacher:', err);
                 return res.status(500).json({ message: 'Error creating teacher' });
@@ -66,6 +69,7 @@ router.post('/createTeacher', async (req, res) => {
         res.status(500).json({ message: 'Error creating teacher' });
     }
 });
+
 
 // Create parent route
 router.post('/createParent', async (req, res) => {
@@ -153,6 +157,78 @@ router.delete('/deleteStudent/:id', (req, res) => {
         res.status(200).json({ message: 'Student deleted successfully' });
     });
 });
+
+
+router.get('/getTeachersByAdmin/:adminId', (req, res) => {
+    const { adminId } = req.params;
+
+    const query = `SELECT * FROM teachers WHERE adminId = ?`;
+    db.query(query, [adminId], (err, results) => {
+        if (err) {
+            console.error('Error fetching teachers:', err);
+            return res.status(500).json({ message: 'Error fetching teachers' });
+        }
+        res.status(200).json(results);
+    });
+});
+
+// Update teacher route
+router.put('/updateTeacher/:id', async (req, res) => {
+    const teacherId = req.params.id;
+    const { name, contact, education, experience, pay, username, password } = req.body;
+
+    try {
+        // Fetch current teacher data to check the password
+        const fetchQuery = `SELECT password FROM teachers WHERE id = ?`;
+        db.query(fetchQuery, [teacherId], async (err, results) => {
+            if (err) {
+                console.error('Error fetching teacher:', err);
+                return res.status(500).json({ message: 'Error fetching teacher' });
+            }
+
+            const currentPassword = results[0].password;
+
+            // Hash the password only if it's different
+            const hashedPassword = password !== currentPassword 
+                ? await hashPassword(password) 
+                : currentPassword;
+
+            // Update the teacher data
+            const updateQuery = `
+                UPDATE teachers 
+                SET name = ?, contact = ?, education = ?, experience = ?, pay = ?, username = ?, password = ? 
+                WHERE id = ?`;
+
+            db.query(updateQuery, [name, contact, education, experience, pay, username, hashedPassword, teacherId], (err, result) => {
+                if (err) {
+                    console.error('Error updating teacher:', err);
+                    return res.status(500).json({ message: 'Error updating teacher' });
+                }
+
+                res.status(200).json({ message: 'Teacher updated successfully' });
+            });
+        });
+    } catch (error) {
+        console.error('Error updating teacher:', error);
+        res.status(500).json({ message: 'Error updating teacher' });
+    }
+});
+
+
+// Delete teacher
+router.delete('/deleteTeacher/:id', (req, res) => {
+    const { id } = req.params;
+
+    const query = `DELETE FROM teachers WHERE id = ?`;
+    db.query(query, [id], (err, result) => {
+        if (err) {
+            console.error('Error deleting teacher:', err);
+            return res.status(500).json({ message: 'Error deleting teacher' });
+        }
+        res.status(200).json({ message: 'Teacher deleted successfully' });
+    });
+});
+
 
 
 module.exports = router;
