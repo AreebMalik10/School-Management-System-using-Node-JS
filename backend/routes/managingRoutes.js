@@ -287,7 +287,107 @@ router.delete('/deleteParent/:parentId', (req, res) => {
 });
 
 
+// Get Leave Requests for a specific admin
+router.get('/viewLeaveRequests', (req, res) => {
+    const { adminId } = req.query; // Admin ID passed as a query parameter
+
+    // Validate input
+    if (!adminId) {
+        return res.status(400).json({ message: 'Admin ID is required' });
+    }
+
+    // Fetch leave requests where adminId matches the admin of the teacher
+    const fetchLeaveRequestsQuery = `
+        SELECT l.id, l.teacherId, l.reason, l.startDate, l.endDate, l.status, t.username AS teacherUsername
+        FROM leaves l
+        JOIN teachers t ON l.teacherId = t.id
+        WHERE t.adminId = ?;
+    `;
+    db.query(fetchLeaveRequestsQuery, [adminId], (err, leaveRequests) => {
+        if (err) {
+            console.error('Error fetching leave requests:', err);
+            return res.status(500).json({ message: 'Error occurred while fetching leave requests' });
+        }
+
+        if (leaveRequests.length === 0) {
+            return res.status(404).json({ message: 'No leave requests found for this admin' });
+        }
+
+        res.json({ leaveRequests });
+    });
+});
+
+// Update Leave Request Status (Approve/Reject)
+router.put('/updateLeaveRequest/:id', (req, res) => {
+    const { status } = req.body; // Status passed in the request body
+    const leaveRequestId = req.params.id; // Leave request ID from the URL parameter
+
+    // Validate input
+    if (!status || !['Approved', 'Rejected'].includes(status)) {
+        return res.status(400).json({ message: 'Valid status (Approved or Rejected) is required' });
+    }
+
+    // First, fetch the teacher's ID based on the leave request ID
+    const fetchTeacherQuery = `
+        SELECT teacherId
+        FROM leaves
+        WHERE id = ?
+    `;
+
+    db.query(fetchTeacherQuery, [leaveRequestId], (err, result) => {
+        if (err) {
+            console.error('Error fetching teacher information:', err);
+            return res.status(500).json({ message: 'Error occurred while fetching teacher information' });
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: 'Leave request not found' });
+        }
+
+        const teacherId = result[0].teacherId;
+
+        // Update the leave request status
+        const updateStatusQuery = `
+            UPDATE leaves
+            SET status = ?
+            WHERE id = ?
+        `;
+
+        db.query(updateStatusQuery, [status, leaveRequestId], (err, updateResult) => {
+            if (err) {
+                console.error('Error updating leave request status:', err);
+                return res.status(500).json({ message: 'Error occurred while updating leave request status' });
+            }
+
+            if (updateResult.affectedRows === 0) {
+                return res.status(404).json({ message: 'Leave request not found' });
+            }
+
+            // Create a notification for the teacher
+            const message = `Your leave request has been ${status.toLowerCase()}.`;
+            const insertNotificationQuery = `
+                INSERT INTO notifications (teacherId, message)
+                VALUES (?, ?)
+            `;
+
+            db.query(insertNotificationQuery, [teacherId, message], (err, notificationResult) => {
+                if (err) {
+                    console.error('Error sending notification to teacher:', err);
+                    return res.status(500).json({ message: 'Error sending notification to teacher' });
+                }
+
+                // Send response back to the admin
+                res.json({ message: `Leave request status updated to ${status} and notification sent to the teacher` });
+            });
+        });
+    });
+});
 
 
+
+
+
+  
+  
 
 module.exports = router;

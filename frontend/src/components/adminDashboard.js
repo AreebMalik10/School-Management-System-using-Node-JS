@@ -21,10 +21,6 @@ const AdminDashboard = () => {
     const [updatedPassword, setUpdatedPassword] = useState('');
     const [editingParent, setEditingParent] = useState(null);
 
-
-
-
-
     // State for forms
     const [studentData, setStudentData] = useState({
         name: '',
@@ -362,7 +358,7 @@ const AdminDashboard = () => {
             username: updatedUsername,
             password: updatedPassword, // Optionally update password
         };
-    
+
         try {
             await axios.put(`http://localhost:5000/manageroute/updateParent/${parentId}`, updatedParentData);
             alert('Parent updated successfully');
@@ -403,58 +399,113 @@ const AdminDashboard = () => {
     };
 
 
+    const [leaveRequests, setLeaveRequests] = useState([]);
+    const [adminId, setAdminId] = useState(''); // Admin ID from login or session
+    const [message, setMessage] = useState('');
+
+
+    useEffect(() => {
+        // Get the adminId from session or login
+        setAdminId(localStorage.getItem('adminId')); // Assuming adminId is stored in localStorage
+
+        if (adminId) {
+            // Fetch the leave requests for the specific admin
+            axios
+                .get('http://localhost:5000/manageroute/viewLeaveRequests', {
+                    params: { adminId: adminId }
+                })
+                .then(response => {
+                    setLeaveRequests(response.data.leaveRequests);
+                })
+                .catch(error => {
+                    console.error('There was an error fetching the leave requests!', error);
+                });
+        }
+    }, [adminId]);
+
+    const handleUpdateStatus = (leaveRequestId, newStatus) => {
+        // Update the status of the leave request (Approve/Reject)
+        axios
+            .put(`http://localhost:5000/manageroute/updateLeaveRequest/${leaveRequestId}`, {
+                status: newStatus
+            })
+            .then((response) => {
+                // Update the UI to reflect the new status
+                setLeaveRequests((prevRequests) =>
+                    prevRequests.map((request) =>
+                        request.id === leaveRequestId
+                            ? { ...request, status: newStatus }
+                            : request
+                    )
+                );
+            })
+            .catch((error) => {
+                console.error('Error updating leave request status:', error);
+            });
+    };
+
+
+
+
 
 
 
 
     return (
         <div>
+
             <h1>Admin Dashboard</h1>
             <h2>Welcome, {adminName}</h2>
             <p>Email: {adminEmail}</p>
             <button onClick={handleLogout}>Logout</button>
 
-            {/* Student Form */}
-            <h3>Create Student</h3>
-            <h3>Create Student</h3>
-            <form onSubmit={handleStudentSubmit}>
-                <input type="text" name="name" value={studentData.name} onChange={(e) => handleInputChange(e, 'student')} placeholder="Student Name" required />
-                <input type="text" name="fatherName" value={studentData.fatherName} onChange={(e) => handleInputChange(e, 'student')} placeholder="Father's Name" required />
-                <input type="text" name="regNo" value={studentData.regNo} onChange={(e) => handleInputChange(e, 'student')} placeholder="Registration No" required />
-                <input type="text" name="contact" value={studentData.contact} onChange={(e) => handleInputChange(e, 'student')} placeholder="Contact" required />
-                <input type="number" name="age" value={studentData.age} onChange={(e) => handleInputChange(e, 'student')} placeholder="Age" required />
-                <input type="text" name="username" value={studentData.username} onChange={(e) => handleInputChange(e, 'student')} placeholder="Username" required />
-                <input type="password" name="password" value={studentData.password} onChange={(e) => handleInputChange(e, 'student')} placeholder="Password" required />
-                <input type="text" name="class" value={studentData.class} onChange={(e) => handleInputChange(e, 'student')} placeholder="Class" required />
-                <input type="text" name="section" value={studentData.section} onChange={(e) => handleInputChange(e, 'student')} placeholder="Section" required />
-                <button type="submit">Create Student</button>
-            </form>
+            <div>
+                {/* Student Form */}
+                <h3>Create Student</h3>
+                <h3>Create Student</h3>
+                <form onSubmit={handleStudentSubmit}>
+                    <input type="text" name="name" value={studentData.name} onChange={(e) => handleInputChange(e, 'student')} placeholder="Student Name" required />
+                    <input type="text" name="fatherName" value={studentData.fatherName} onChange={(e) => handleInputChange(e, 'student')} placeholder="Father's Name" required />
+                    <input type="text" name="regNo" value={studentData.regNo} onChange={(e) => handleInputChange(e, 'student')} placeholder="Registration No" required />
+                    <input type="text" name="contact" value={studentData.contact} onChange={(e) => handleInputChange(e, 'student')} placeholder="Contact" required />
+                    <input type="number" name="age" value={studentData.age} onChange={(e) => handleInputChange(e, 'student')} placeholder="Age" required />
+                    <input type="text" name="username" value={studentData.username} onChange={(e) => handleInputChange(e, 'student')} placeholder="Username" required />
+                    <input type="password" name="password" value={studentData.password} onChange={(e) => handleInputChange(e, 'student')} placeholder="Password" required />
+                    <input type="text" name="class" value={studentData.class} onChange={(e) => handleInputChange(e, 'student')} placeholder="Class" required />
+                    <input type="text" name="section" value={studentData.section} onChange={(e) => handleInputChange(e, 'student')} placeholder="Section" required />
+                    <button type="submit">Create Student</button>
+                </form>
+            </div>
 
 
             {/* Teacher Form */}
-            <h3>Create Teacher</h3>
-            <form onSubmit={handleTeacherSubmit}>
-                <input type="text" name="name" value={teacherData.name} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Teacher Name" required />
-                <input type="text" name="contact" value={teacherData.contact} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Contact" required />
-                <input type="text" name="education" value={teacherData.education} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Education" required />
-                <input type="text" name="experience" value={teacherData.experience} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Experience" required />
-                <input type="number" name="pay" value={teacherData.pay} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Pay" required />
-                <input type="text" name="username" value={teacherData.username} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Username" required />
-                <input type="password" name="password" value={teacherData.password} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Password" required />
-                <button type="submit">Create Teacher</button>
-            </form>
+            <div>
+                <h3>Create Teacher</h3>
+                <form onSubmit={handleTeacherSubmit}>
+                    <input type="text" name="name" value={teacherData.name} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Teacher Name" required />
+                    <input type="text" name="contact" value={teacherData.contact} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Contact" required />
+                    <input type="text" name="education" value={teacherData.education} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Education" required />
+                    <input type="text" name="experience" value={teacherData.experience} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Experience" required />
+                    <input type="number" name="pay" value={teacherData.pay} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Pay" required />
+                    <input type="text" name="username" value={teacherData.username} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Username" required />
+                    <input type="password" name="password" value={teacherData.password} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Password" required />
+                    <button type="submit">Create Teacher</button>
+                </form>
+            </div>
 
             {/* Parent Form */}
-            <h3>Create Parent</h3>
-            <form onSubmit={handleParentSubmit}>
-                <input type="text" name="name" value={parentData.name} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Parent Name" required />
-                <input type="text" name="childrenName" value={parentData.childrenName} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Children Name" required />
-                <input type="text" name="occupation" value={parentData.occupation} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Occupation" required />
-                <input type="text" name="contact" value={parentData.contact} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Contact" required />
-                <input type="text" name="username" value={parentData.username} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Username" required />
-                <input type="password" name="password" value={parentData.password} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Password" required />
-                <button type="submit">Create Parent</button>
-            </form>
+            <div>
+                <h3>Create Parent</h3>
+                <form onSubmit={handleParentSubmit}>
+                    <input type="text" name="name" value={parentData.name} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Parent Name" required />
+                    <input type="text" name="childrenName" value={parentData.childrenName} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Children Name" required />
+                    <input type="text" name="occupation" value={parentData.occupation} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Occupation" required />
+                    <input type="text" name="contact" value={parentData.contact} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Contact" required />
+                    <input type="text" name="username" value={parentData.username} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Username" required />
+                    <input type="password" name="password" value={parentData.password} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Password" required />
+                    <button type="submit">Create Parent</button>
+                </form>
+            </div>
 
             <h3>Admin Dashboard</h3>
             <h4>List of Students</h4>
@@ -653,8 +704,56 @@ const AdminDashboard = () => {
 
             )}
 
-           {/* List of Parents */}
-           <h4>List of Parents</h4>
+            <div>
+                <h2>Leave Requests</h2>
+                {leaveRequests.length === 0 ? (
+                    <p>No leave requests available.</p>
+                ) : (
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Teacher Username</th>
+                                <th>Reason</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {leaveRequests.map((request) => (
+                                <tr key={request.id}>
+                                    <td>{request.teacherUsername}</td>
+                                    <td>{request.reason}</td>
+                                    <td>{request.startDate}</td>
+                                    <td>{request.endDate}</td>
+                                    <td>{request.status}</td>
+                                    <td>
+                                        <button
+                                            onClick={() => handleUpdateStatus(request.id, 'Approved')}
+                                            disabled={request.status === 'Approved'}
+                                        >
+                                            Approve
+                                        </button>
+                                        <button
+                                            onClick={() => handleUpdateStatus(request.id, 'Rejected')}
+                                            disabled={request.status === 'Rejected'}
+                                        >
+                                            Reject
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+            </div>
+
+
+
+
+            {/* List of Parents */}
+            <h4>List of Parents</h4>
             {loading ? (
                 <p>Loading parents...</p>
             ) : (
