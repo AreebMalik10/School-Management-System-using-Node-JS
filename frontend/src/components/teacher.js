@@ -8,6 +8,9 @@ export default function Teacher() {
     const navigate = useNavigate();
     const { name, username } = location.state || {};
 
+    const [leaveRequests, setLeaveRequests] = useState([]);  // State to store leave requests
+    const [error, setError] = useState('');
+
     useEffect(() => {
         // Check if token is available in localStorage
         const token = localStorage.getItem('token');
@@ -16,7 +19,10 @@ export default function Teacher() {
             // If no token, redirect to login page
             navigate('/');
         }
-    }, [navigate]);
+        else {
+            fetchLeaveRequests(username); // Fetch leave requests on mount
+        }
+    }, [navigate, username]);
 
     const handleLogout = () => {
         // Remove token from localStorage
@@ -30,7 +36,8 @@ export default function Teacher() {
       const [startDate, setStartDate] = useState('');
       const [endDate, setEndDate] = useState('');
       const [message, setMessage] = useState('');
-  
+
+      
       const handleSubmit = async (e) => {
           e.preventDefault();
   
@@ -56,37 +63,26 @@ export default function Teacher() {
           }
       };
 
-      const [leaveRequests, setLeaveRequests] = useState([]);
-    const [error, setError] = useState(null);
-
-    // Get teacherId from sessionStorage (assuming the teacher is logged in)
-    const teacherId = sessionStorage.getItem("teacherId");
-
-    useEffect(() => {
-        if (teacherId) {
-            fetchLeaveRequests(teacherId);  // Fetch leave requests for the logged-in teacher
-        } else {
-            setError("Teacher ID is not found");
-        }
-    }, [teacherId]);
-
-    const fetchLeaveRequests = async (teacherId) => {
+      const fetchLeaveRequests = async (teacherUsername) => {
         try {
-            console.log(`Fetching leave requests for teacherId: ${teacherId}`);
-            const response = await axios.get(`http://localhost:5000/teacher/viewTeacherLeaveRequests`, {
-                params: { teacherId: teacherId },
+            const token = localStorage.getItem('token');  // Get token for authorization
+            const response = await axios.get('http://localhost:5000/teacher/viewLeaveRequests1', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                params: { username: teacherUsername }  // Send the teacher username as a query parameter
             });
-            console.log("Leave Requests:", response.data.leaveRequests);
+
             setLeaveRequests(response.data.leaveRequests);
-        } catch (err) {
-            console.error("Error fetching leave requests:", err);
-            setError("Failed to fetch leave requests");
+        } catch (error) {
+            setError(error.response?.data?.message || 'An error occurred while fetching leave requests');
         }
     };
-  
-  
-  
 
+
+    
+
+      
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -180,22 +176,45 @@ export default function Teacher() {
             {message && <p className="text-center mt-4 text-red-600">{message}</p>}
         </div>
 
+        {/* Display Leave Requests */}
+        <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md mt-6">
+                <h2 className="text-2xl font-semibold text-center mb-6">Your Leave Requests</h2>
+
+                {/* Display error message if any */}
+                {error && <p className="text-center text-red-600">{error}</p>}
+
+                {leaveRequests.length === 0 ? (
+                    <p className="text-center">No leave requests found.</p>
+                ) : (
+                    <table className="w-full border-collapse">
+                        <thead>
+                            <tr>
+                                <th className="border p-2">ID</th>
+                                <th className="border p-2">Reason</th>
+                                <th className="border p-2">Start Date</th>
+                                <th className="border p-2">End Date</th>
+                                <th className="border p-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {leaveRequests.map(request => (
+                                <tr key={request.id}>
+                                    <td className="border p-2">{request.id}</td>
+                                    <td className="border p-2">{request.reason}</td>
+                                    <td className="border p-2">{request.startDate}</td>
+                                    <td className="border p-2">{request.endDate}</td>
+                                    <td className="border p-2">{request.status}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+            </div>
+
+       
+
         
-        <div>
-            <h1>Teacher Leave Requests</h1>
-            {error && <p>{error}</p>}
-            {leaveRequests.length === 0 ? (
-                <p>No leave requests found</p>
-            ) : (
-                <ul>
-                    {leaveRequests.map((request) => (
-                        <li key={request.id}>
-                            {request.reason} ({request.status}) from {request.startDate} to {request.endDate}
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
+        
 
 
              

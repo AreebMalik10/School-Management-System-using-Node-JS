@@ -327,67 +327,27 @@ router.put('/updateLeaveRequest/:id', (req, res) => {
         return res.status(400).json({ message: 'Valid status (Approved or Rejected) is required' });
     }
 
-    // First, fetch the teacher's ID based on the leave request ID
-    const fetchTeacherQuery = `
-        SELECT teacherId
-        FROM leaves
+    // Update the leave request status directly using leaveRequestId
+    const updateStatusQuery = `
+        UPDATE leaves
+        SET status = ?
         WHERE id = ?
     `;
 
-    db.query(fetchTeacherQuery, [leaveRequestId], (err, result) => {
+    db.query(updateStatusQuery, [status, leaveRequestId], (err, updateResult) => {
         if (err) {
-            console.error('Error fetching teacher information:', err);
-            return res.status(500).json({ message: 'Error occurred while fetching teacher information' });
+            console.error('Error updating leave request status:', err);
+            return res.status(500).json({ message: 'Error occurred while updating leave request status' });
         }
 
-        if (result.length === 0) {
+        if (updateResult.affectedRows === 0) {
             return res.status(404).json({ message: 'Leave request not found' });
         }
 
-        const teacherId = result[0].teacherId;
-
-        // Update the leave request status
-        const updateStatusQuery = `
-            UPDATE leaves
-            SET status = ?
-            WHERE id = ?
-        `;
-
-        db.query(updateStatusQuery, [status, leaveRequestId], (err, updateResult) => {
-            if (err) {
-                console.error('Error updating leave request status:', err);
-                return res.status(500).json({ message: 'Error occurred while updating leave request status' });
-            }
-
-            if (updateResult.affectedRows === 0) {
-                return res.status(404).json({ message: 'Leave request not found' });
-            }
-
-            // Create a notification for the teacher
-            const message = `Your leave request has been ${status.toLowerCase()}.`;
-            const insertNotificationQuery = `
-                INSERT INTO notifications (teacherId, message)
-                VALUES (?, ?)
-            `;
-
-            db.query(insertNotificationQuery, [teacherId, message], (err, notificationResult) => {
-                if (err) {
-                    console.error('Error sending notification to teacher:', err);
-                    return res.status(500).json({ message: 'Error sending notification to teacher' });
-                }
-
-                // Send response back to the admin
-                res.json({ message: `Leave request status updated to ${status} and notification sent to the teacher` });
-            });
-        });
+        res.json({ message: 'Leave request status updated successfully' });
     });
 });
 
 
-
-
-
-  
-  
 
 module.exports = router;

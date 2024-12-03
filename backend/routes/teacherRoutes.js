@@ -37,12 +37,12 @@ router.post('/createLeaveRequest', (req, res) => {
 
         // Insert leave request into the 'leaves' table
         const insertLeaveRequestQuery = `
-            INSERT INTO leaves (teacherId, adminId, reason, startDate, endDate, status)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO leaves (teacherId, adminId, username, reason, startDate, endDate, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
         db.query(
             insertLeaveRequestQuery,
-            [teacherId, adminId, reason, startDate, endDate, 'Pending'],
+            [teacherId, adminId, teacherUsername, reason, startDate, endDate, 'Pending'],
             (err, result) => {
                 if (err) {
                     console.error('Error creating leave request:', err);
@@ -57,36 +57,38 @@ router.post('/createLeaveRequest', (req, res) => {
 
 
 
-// Get Leave Requests for a specific teacher
-router.get('/viewTeacherLeaveRequests', (req, res) => {
-    const { teacherId } = req.query; // Teacher ID passed as a query parameter
 
-    // Validate input
-    if (!teacherId) {
-        return res.status(400).json({ message: 'Teacher ID is required' });
+// Fetch Leave Requests for a Teacher by Username
+// Fetch Leave Requests for Logged-In Teacher
+router.get('/viewLeaveRequests1', (req, res) => {
+    const teacherUsername = req.query.username; // Get the username from the query parameters
+
+    if (!teacherUsername) {
+        return res.status(400).json({ message: 'Teacher username is required' });
     }
 
-    // Fetch leave requests where teacherId matches the teacher's ID
     const fetchLeaveRequestsQuery = `
         SELECT id, reason, startDate, endDate, status
         FROM leaves
-        WHERE teacherId = ?
-        ORDER BY startDate DESC;
+        WHERE username = ?;
     `;
 
-    db.query(fetchLeaveRequestsQuery, [teacherId], (err, leaveRequests) => {
+    db.query(fetchLeaveRequestsQuery, [teacherUsername], (err, leaveRequests) => {
         if (err) {
             console.error('Error fetching leave requests:', err);
             return res.status(500).json({ message: 'Error occurred while fetching leave requests' });
         }
 
         if (leaveRequests.length === 0) {
-            return res.status(404).json({ message: 'No leave requests found for this teacher' });
+            return res.status(404).json({ message: 'No leave requests found for this username' });
         }
 
         res.json({ leaveRequests });
     });
 });
+
+
+
 
 
 
