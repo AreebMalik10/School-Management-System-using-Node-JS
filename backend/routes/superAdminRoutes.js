@@ -38,4 +38,51 @@ router.post('/salogin', (req, res) => {
     });
 });
 
+router.get('/schools', async (req, res) => {
+    try {
+      // Query to fetch all admins and their associated schools
+      const query = `
+        SELECT a.id as admin_id, a.name as admin_name, a.email as admin_email,
+               s.school_id, s.school_name, s.school_address, s.school_phone, s.principal_name, s.grades_offered, s.school_registration_no
+        FROM admins a
+        LEFT JOIN school s ON a.school_id = s.school_id
+      `;
+      
+      // Execute the query
+      const [rows] = await db.promise().query(query);
+      
+      // Prepare the data
+      const admins = rows.map(row => ({
+        id: row.admin_id,
+        name: row.admin_name,
+        email: row.admin_email,
+        school: {
+          school_id: row.school_id,
+          school_name: row.school_name,
+          school_address: row.school_address,
+          school_phone: row.school_phone,
+          principal_name: row.principal_name,
+          grades_offered: row.grades_offered,
+          school_registration_no: row.school_registration_no,
+        }
+      }));
+  
+      // Return the data as JSON
+      res.status(200).json({ admins });
+  
+    } catch (err) {
+      console.error('Error fetching admins and schools:', err);
+      res.status(500).json({ message: 'Error fetching data' });
+    }
+  });
+  
+
+
+
+
+  
+
+
+  
+
 module.exports = router;

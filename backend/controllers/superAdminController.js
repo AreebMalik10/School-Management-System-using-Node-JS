@@ -3,22 +3,52 @@ const bcrypt = require('bcryptjs');
 
 
 // Create Admin Handler 
-exports.createAdminHandler = async (req, res) => {
+exports.createAdminAndSchoolHandler = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, school_name, school_address, school_phone, principal_name, grades_offered, school_registration_no } = req.body;
 
-        // Hash the password before saving to the database
-        const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds for bcrypt
+        // Start a transaction to ensure data integrity
+        await db.promise().beginTransaction();
 
-        const query = `INSERT INTO admins (name, email, password) VALUES (?, ?, ?)`;
-        await db.promise().query(query, [name, email, hashedPassword]); // Use the hashed password
+        // Insert school into the database
+        const schoolQuery = `
+            INSERT INTO school (school_name, school_address, school_phone, principal_name, grades_offered, school_registration_no)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        const [schoolResult] = await db.promise().query(schoolQuery, [
+            school_name,
+            school_address,
+            school_phone,
+            principal_name,
+            grades_offered,
+            school_registration_no,
+        ]);
+        const school_id = schoolResult.insertId;
 
-        res.status(201).json({ message: 'Admin created successfully' });
+        // Hash the admin's password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Insert admin into the database, linked to the school
+        const adminQuery = `
+            INSERT INTO admins (name, email, password, school_id)
+            VALUES (?, ?, ?, ?)
+        `;
+        await db.promise().query(adminQuery, [name, email, hashedPassword, school_id]);
+
+        // Commit the transaction
+        await db.promise().commit();
+
+        res.status(201).json({ message: 'Admin and School created successfully', school_id });
     } catch (err) {
-        console.error('Error creating admin:', err);
-        res.status(500).json({ message: 'Error creating admin' });
+        console.error('Error creating admin and school:', err);
+
+        // Rollback the transaction in case of an error
+        await db.promise().rollback();
+        res.status(500).json({ message: 'Error creating admin and school' });
     }
 };
+
+
 
 // View Admins Handler
 exports.viewAdminsHandler = async (req, res) => {
