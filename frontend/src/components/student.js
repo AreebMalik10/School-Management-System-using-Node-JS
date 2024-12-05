@@ -63,7 +63,10 @@ export default function Student() {
                         <tr>
                             <th>Fee Amount</th>
                             <th>Fine Amount</th>
+                            <th>Challan Month</th>
+                            <th>Other Expenses</th>
                             <th>Total Amount</th>
+                            <th>Challan Description</th>
                             <th>Due Date</th>
                             <th>Status</th>
                         </tr>
@@ -73,7 +76,10 @@ export default function Student() {
                             <tr key={challan.id}>
                                 <td>{challan.fee_amount}</td>
                                 <td>{challan.fine_amount}</td>
+                                <td>{challan.challan_month}</td>
+                                <td>{challan.others_expense}</td>
                                 <td>{challan.total_amount}</td>
+                                <td>{challan.challan_description}</td>
                                 <td>{challan.due_date}</td>
                                 <td>{challan.status}</td>
                             </tr>

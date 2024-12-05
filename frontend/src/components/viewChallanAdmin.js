@@ -77,8 +77,11 @@ const ViewChallanAdmin = () => {
                         <tr>
                             <th>Student Username</th>
                             <th>Fee Amount</th>
+                            <th>Challan Month</th>
                             <th>Fine Amount</th>
                             <th>Total Amount</th>
+                            <th>Others Expense</th>
+                            <th>Challan Description</th>
                             <th>Due Date</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -89,8 +92,11 @@ const ViewChallanAdmin = () => {
                             <tr key={challan.id}>
                                 <td>{challan.username}</td>
                                 <td>{challan.fee_amount}</td>
+                                <td>{challan.challan_month}</td>
                                 <td>{challan.fine_amount}</td>
                                 <td>{challan.total_amount}</td>
+                                <td>{challan.others_expense}</td>
+                                <td>{challan.challan_description}</td>
                                 <td>{challan.due_date}</td>
                                 <td>{challan.status}</td>
                                 <td>

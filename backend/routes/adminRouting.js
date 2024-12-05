@@ -18,7 +18,7 @@ router.get('/students/classwise/:adminId', (req, res) => {
 
 
 router.post('/createChallan', (req, res) => {
-    const { username, feeAmount, fineAmount, dueDate } = req.body;
+    const { username, feeAmount, fineAmount, dueDate, challanMonth, challanDescription, othersExpense } = req.body;
     const adminEmail = req.body.adminEmail;  // Admin's email passed from frontend
 
     // Query to get the regNo associated with the given username
@@ -35,14 +35,27 @@ router.post('/createChallan', (req, res) => {
         }
 
         const regNo = result[0].regNo;
-        const totalAmount = parseFloat(feeAmount) + parseFloat(fineAmount || 0);
+
+        // Calculate total amount: Fee + Fine + Other Expenses
+        const totalAmount = parseFloat(feeAmount) + parseFloat(fineAmount || 0) + parseFloat(othersExpense || 0);
 
         // Insert the challan with the fetched regNo and admin's email
         const insertChallanQuery = `
-            INSERT INTO challans (regNo, username, fee_amount, fine_amount, total_amount, due_date, status, adminEmail)
-            VALUES (?, ?, ?, ?, ?, ?, 'Pending', ?)
+            INSERT INTO challans (regNo, username, fee_amount, fine_amount, total_amount, due_date, status, adminEmail, challan_month, challan_description, others_expense)
+            VALUES (?, ?, ?, ?, ?, ?, 'Pending', ?, ?, ?, ?)
         `;
-        const values = [regNo, username, feeAmount, fineAmount || 0, totalAmount, dueDate, adminEmail];
+        const values = [
+            regNo, 
+            username, 
+            feeAmount, 
+            fineAmount || 0, 
+            totalAmount, 
+            dueDate, 
+            adminEmail, 
+            challanMonth, 
+            challanDescription, 
+            othersExpense || 0
+        ];
 
         db.query(insertChallanQuery, values, (err, result) => {
             if (err) {
@@ -53,6 +66,8 @@ router.post('/createChallan', (req, res) => {
         });
     });
 });
+
+
 
 router.get('/getChallansByAdmin', (req, res) => {
     const adminEmail = req.query.adminEmail;  // Admin's email passed in query

@@ -7,10 +7,12 @@ const CreateChallan = () => {
     const [feeAmount, setFeeAmount] = useState('');
     const [fineAmount, setFineAmount] = useState('');
     const [dueDate, setDueDate] = useState('');
+    const [challanMonth, setChallanMonth] = useState('');
+    const [challanDescription, setChallanDescription] = useState('');
+    const [othersExpense, setOthersExpense] = useState('');
     const [adminEmail, setAdminEmail] = useState('');
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
-    
 
     // Fetch admin's details from localStorage
     useEffect(() => {
@@ -30,19 +32,20 @@ const CreateChallan = () => {
             feeAmount,
             fineAmount,
             dueDate,
+            challanMonth,
+            challanDescription,
+            othersExpense,
             adminEmail // Admin's email from localStorage
         };
-
-       
 
         // Send data to backend
         axios.post('http://localhost:5000/admin1/createChallan', data)
             .then(response => {
-               setMessage('Challan Created Successfully');
+                setMessage('Challan Created Successfully');
             })
             .catch(error => {
                 console.error(error);
-                setMessage('Username is not Correct');
+                setMessage('Error in creating challan');
             });
     };
 
@@ -81,6 +84,29 @@ const CreateChallan = () => {
                         type="date"
                         value={dueDate}
                         onChange={(e) => setDueDate(e.target.value)}
+                    />
+                </div>
+                <div>
+                    <label>Challan Month:</label>
+                    <input
+                        type="text"
+                        value={challanMonth}
+                        onChange={(e) => setChallanMonth(e.target.value)}
+                    />
+                </div>
+                <div>
+                    <label>Challan Description:</label>
+                    <textarea
+                        value={challanDescription}
+                        onChange={(e) => setChallanDescription(e.target.value)}
+                    />
+                </div>
+                <div>
+                    <label>Other Expenses:</label>
+                    <input
+                        type="number"
+                        value={othersExpense}
+                        onChange={(e) => setOthersExpense(e.target.value)}
                     />
                 </div>
                 <button type="submit">Create Challan</button>

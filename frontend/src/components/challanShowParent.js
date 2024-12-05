@@ -30,9 +30,12 @@ const ChallanShowParent = ({ childUsername }) => {
             {challanData.map((challan) => (
               <li key={challan.id}>
                 <p>Fee Amount: {challan.fee_amount}</p>
+                <p>Challan Month: {challan.challan_month}</p>
                 <p>Fine Amount: {challan.fine_amount}</p>
+                <p>Others Expense: {challan.others_expense}</p>
                 <p>Total Amount: {challan.total_amount}</p>
                 <p>Due Date: {challan.due_date}</p>
+                <p>Challan Description: {challan.challan_description}</p>
                 <p>Status: {challan.status}</p>
               </li>
             ))}
