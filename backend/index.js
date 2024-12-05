@@ -11,6 +11,7 @@ const managingRoutes = require('./routes/managingRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const teacherRoutes = require('./routes/teacherRoutes');
 const parentRoutes = require('./routes/parentRoutes');
+const adminRouting = require('./routes/adminRouting')
 
 const app = express();
 app.use(cors());
@@ -20,6 +21,8 @@ app.use(cors());
 app.use(express.json());
 app.use(cors());
 
+
+
 // Routes
 app.use('/admin', adminRoutes);
 app.use('/auth', authRoutes);
@@ -28,6 +31,7 @@ app.use('/manageroute', managingRoutes );
 app.use('/student', studentRoutes);
 app.use('/teacher', teacherRoutes);
 app.use('/parent', parentRoutes);
+app.use('/admin1', adminRouting);
 
 // Start the server
 const port = process.env.PORT || 5000;

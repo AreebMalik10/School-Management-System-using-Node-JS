@@ -8,6 +8,7 @@ import LoginPage from './components/loginPage';
 import Student from './components/student';
 import Teacher from './components/teacher';
 import Parent from './components/parent';
+import ChallanForm from './components/challanForm';
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Route path='/student' element={<Student/>}></Route>
         <Route path='/teacher' element={<Teacher/>}></Route>
         <Route path='/parent' element={<Parent/>}></Route>
+        <Route path='/challan' element={<ChallanForm/>}></Route>
       </Routes>
       
     </div>
