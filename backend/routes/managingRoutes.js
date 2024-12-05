@@ -73,16 +73,16 @@ router.post('/createTeacher', async (req, res) => {
 
 // Create parent route
 router.post('/createParent', async (req, res) => {
-    const { name, childrenName, occupation, contact, username, password, adminId } = req.body;
+    const { name, childrenName, occupation, contact, username, password, adminId, childUsername } = req.body;
 
     try {
         // Hash password before saving to DB
         const hashedPassword = await hashPassword(password);
 
-        const query = `INSERT INTO parents (name, childrenName, occupation, contact, username, password, adminId) 
-                       VALUES (?, ?, ?, ?, ?, ?, ?)`;
+        const query = `INSERT INTO parents (name, childrenName, occupation, contact, username, password, adminId, childUsername) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
-        db.query(query, [name, childrenName, occupation, contact, username, hashedPassword, adminId], (err, result) => {
+        db.query(query, [name, childrenName, occupation, contact, username, hashedPassword, adminId, childUsername], (err, result) => {
             if (err) {
                 console.error('Error creating parent:', err);
                 return res.status(500).json({ message: 'Error creating parent' });
@@ -94,6 +94,7 @@ router.post('/createParent', async (req, res) => {
         res.status(500).json({ message: 'Error creating parent' });
     }
 });
+
 
 
 
@@ -248,16 +249,16 @@ router.get('/getParentsByAdmin/:adminId', (req, res) => {
 // Update parent details
 router.put('/updateParent/:parentId', async (req, res) => {
     const { parentId } = req.params;
-    const { name, childrenName, occupation, contact, username, password } = req.body;
+    const { name, childrenName, occupation, contact, username, password, childUsername } = req.body;
 
     try {
         const hashedPassword = password ? await hashPassword(password) : null;
 
         const query = `UPDATE parents 
-                       SET name = ?, childrenName = ?, occupation = ?, contact = ?, username = ?, password = ? 
+                       SET name = ?, childrenName = ?, occupation = ?, contact = ?, username = ?, password = ?, childUsername = ? 
                        WHERE id = ?`;
 
-        db.query(query, [name, childrenName, occupation, contact, username, hashedPassword, parentId], (err, result) => {
+        db.query(query, [name, childrenName, occupation, contact, username, hashedPassword, childUsername, parentId], (err, result) => {
             if (err) {
                 console.error('Error updating parent:', err);
                 return res.status(500).json({ message: 'Error updating parent' });

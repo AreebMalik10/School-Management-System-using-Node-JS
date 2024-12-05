@@ -22,6 +22,7 @@ const AdminDashboard = () => {
     const [updatedUsername, setUpdatedUsername] = useState('');
     const [updatedPassword, setUpdatedPassword] = useState('');
     const [editingParent, setEditingParent] = useState(null);
+    const [updatedChildUsername, setUpdatedChildUserName] = useState('');
 
     // State for forms
     const [studentData, setStudentData] = useState({
@@ -50,7 +51,9 @@ const AdminDashboard = () => {
         occupation: '',
         contact: '',
         username: '',
-        password: ''
+        password: '',
+        childUsername: ''
+
     });
 
     // Retrieve admin's details from localStorage
@@ -195,7 +198,8 @@ const AdminDashboard = () => {
                 occupation: '',
                 contact: '',
                 username: '',
-                password: ''
+                password: '',
+                childUsername: ''
             });
         } catch (error) {
             console.error('Error creating parent:', error);
@@ -355,6 +359,7 @@ const AdminDashboard = () => {
         const updatedParentData = {
             name: updatedName,
             childrenName: updatedChildrenName,
+            childUsername: updatedChildUsername ,
             occupation: updatedOccupation,
             contact: updatedContact,
             username: updatedUsername,
@@ -380,6 +385,7 @@ const AdminDashboard = () => {
         setEditingParent(parent);
         setUpdatedName(parent.name);
         setUpdatedChildrenName(parent.childrenName);
+        setUpdatedChildUserName(parent.childUsername);
         setUpdatedOccupation(parent.occupation);
         setUpdatedContact(parent.contact);
         setUpdatedUsername(parent.username);
@@ -501,6 +507,7 @@ const AdminDashboard = () => {
                 <form onSubmit={handleParentSubmit}>
                     <input type="text" name="name" value={parentData.name} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Parent Name" required />
                     <input type="text" name="childrenName" value={parentData.childrenName} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Children Name" required />
+                    <input type="text" name="childUsername" value={parentData.childUsername} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Child Username" required />
                     <input type="text" name="occupation" value={parentData.occupation} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Occupation" required />
                     <input type="text" name="contact" value={parentData.contact} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Contact" required />
                     <input type="text" name="username" value={parentData.username} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Username" required />
@@ -765,6 +772,7 @@ const AdminDashboard = () => {
                             <li key={parent.id}>
                                 <p>Name: {parent.name}</p>
                                 <p>Children: {parent.childrenName}</p>
+                                <p>Child UserName: {parent.childUsername}</p>
                                 <p>Occupation: {parent.occupation}</p>
                                 <p>Contact: {parent.contact}</p>
                                 <p>Username: {parent.username}</p>
@@ -793,6 +801,13 @@ const AdminDashboard = () => {
                                     value={updatedChildrenName}
                                     onChange={(e) => setUpdatedChildrenName(e.target.value)}
                                     placeholder="Children's Name"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    value={updatedChildUsername}
+                                    onChange={(e) =>  setUpdatedChildUserName(e.target.value)}
+                                    placeholder="Child Username"
                                     required
                                 />
                                 <input

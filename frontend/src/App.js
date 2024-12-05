@@ -10,6 +10,7 @@ import Teacher from './components/teacher';
 import Parent from './components/parent';
 import ChallanForm from './components/challanForm';
 import ViewChallanAdmin from './components/viewChallanAdmin';
+import ChallanShowParent from './components/challanShowParent';
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
         <Route path='/parent' element={<Parent/>}></Route>
         <Route path='/challan' element={<ChallanForm/>}></Route>
         <Route path='/viewChallanAdmin' element={<ViewChallanAdmin/>}></Route>
+        <Route path='/challanshowparent' element={<ChallanShowParent/>}></Route>
       </Routes>
       
     </div>
