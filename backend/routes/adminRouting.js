@@ -54,29 +54,84 @@ router.post('/createChallan', (req, res) => {
     });
 });
 
+router.get('/getChallansByAdmin', (req, res) => {
+    const adminEmail = req.query.adminEmail;  // Admin's email passed in query
 
+    if (!adminEmail) {
+        return res.status(400).send('Admin email is required');
+    }
 
+    // Query to get all challans created by the admin
+    const getChallansQuery = 'SELECT * FROM challans WHERE adminEmail = ?';
 
-router.get('/getChallans/:regNo', (req, res) => {
-    const { regNo } = req.params;
-
-    const query = `
-        SELECT * FROM challans WHERE regNo = ?
-    `;
-
-    db.query(query, [regNo], (err, results) => {
+    db.query(getChallansQuery, [adminEmail], (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).send('Error while fetching challans');
         }
-        res.status(200).json(results);
+
+        if (result.length === 0) {
+            return res.status(404).send('No challans found for this admin');
+        }
+
+        res.status(200).json(result); // Send the challans back as a response
+    });
+});
+
+// Update Challan (Status Update)
+router.put('/updateChallan', (req, res) => {
+    const { challanId, status } = req.body;  // Challan ID and new status
+
+    if (!challanId || !status) {
+        return res.status(400).send('Challan ID and status are required');
+    }
+
+    // Log values for debugging
+    console.log('Challan ID:', challanId);
+    console.log('New Status:', status);
+
+    // Query to update the status of a specific challan
+    const updateChallanQuery = 'UPDATE challans SET status = ? WHERE id = ?';
+
+    db.query(updateChallanQuery, [status, challanId], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Error while updating challan');
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).send('Challan not found');
+        }
+
+        res.status(200).send('Challan status updated successfully');
     });
 });
 
 
+// Delete Challan
+router.delete('/deleteChallan', (req, res) => {
+    const { challanId } = req.body;
 
+    if (!challanId) {
+        return res.status(400).send('Challan ID is required');
+    }
 
+    // Query to delete the challan
+    const deleteChallanQuery = 'DELETE FROM challans WHERE id = ?';
 
+    db.query(deleteChallanQuery, [challanId], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Error while deleting challan');
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).send('Challan not found');
+        }
+
+        res.status(200).send('Challan deleted successfully');
+    });
+});
 
 
 module.exports = router;  

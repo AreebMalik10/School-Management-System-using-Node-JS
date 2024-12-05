@@ -10,6 +10,7 @@ const CreateChallan = () => {
     const [adminEmail, setAdminEmail] = useState('');
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
+    
 
     // Fetch admin's details from localStorage
     useEffect(() => {

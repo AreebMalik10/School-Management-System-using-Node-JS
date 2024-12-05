@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // For redirecting after logout
 import ChallanForm from './challanForm';
+import ViewChallanAdmin from './viewChallanAdmin';
 
 const AdminDashboard = () => {
     const [adminName, setAdminName] = useState('');
@@ -831,6 +832,10 @@ const AdminDashboard = () => {
 
             <div>
                 <ChallanForm />
+            </div>
+
+            <div>
+                <ViewChallanAdmin />
             </div>
 
 
