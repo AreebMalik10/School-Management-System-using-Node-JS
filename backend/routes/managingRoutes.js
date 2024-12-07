@@ -131,7 +131,7 @@ router.put('/updateStudent/:id', async (req, res) => {
     const query = `
         UPDATE students
         SET name = ?, fatherName = ?, regNo = ?, contact = ?, age = ?, username = ?, password = ?, class = ?, section = ?
-        WHERE id = ?
+        WHERE student_id = ?
     `;
 
     db.query(query, [name, fatherName, regNo, contact, age, username, hashedPassword, studentClass, section, studentId], (err, result) => {

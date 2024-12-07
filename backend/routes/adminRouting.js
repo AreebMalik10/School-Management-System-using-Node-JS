@@ -149,5 +149,358 @@ router.delete('/deleteChallan', (req, res) => {
 });
 
 
+//Admin class or section ko create kr raha 
+router.post('/createclass', (req, res) => {
+    const { class_name, section } = req.body;
+
+    // Get admin details from session
+    const admin_email = req.body.admin_email; // Assuming it's sent from the frontend (like from session)
+    const admin_id = req.body.admin_id; // Assuming it's sent from the frontend (like from session)
+
+    if (!class_name || !section || !admin_email || !admin_id) {
+        return res.status(400).send({ message: 'Missing required fields.' });
+    }
+
+    // Step 1: Check if the class already exists
+    const checkClassQuery = `
+        SELECT id FROM classes WHERE class_name = ? AND section = ?
+    `;
+
+    db.query(checkClassQuery, [class_name, section], (err, result) => {
+        if (err) {
+            console.error('Error checking class:', err);
+            return res.status(500).send({ message: 'Internal Server Error' });
+        }
+
+        // If class exists, return an error
+        if (result.length > 0) {
+            return res.status(400).send({ message: 'Class with this name and section already exists.' });
+        }
+
+        // Step 2: Insert new class into the classes table
+        const createClassQuery = `
+            INSERT INTO classes (class_name, section, admin_email, admin_id) 
+            VALUES (?, ?, ?, ?)
+        `;
+
+        db.query(createClassQuery, [class_name, section, admin_email, admin_id], (err, result) => {
+            if (err) {
+                console.error('Error creating class:', err);
+                return res.status(500).send({ message: 'Internal Server Error' });
+            }
+
+            res.status(200).send({ message: 'Class created successfully.', class_id: result.insertId });
+        });
+    });
+});
+
+
+
+router.post('/assignclass', (req, res) => {
+    const { teacher_username, class_name, section } = req.body;
+
+    if (!teacher_username || !class_name || !section) {
+        return res.status(400).send({ message: 'All fields are required.' });
+    }
+
+    // Step 1: Check if class and section exist
+    const classQuery = `SELECT id FROM classes WHERE class_name = ? AND section = ?`;
+
+    db.query(classQuery, [class_name, section], (err, result) => {
+        if (err) {
+            console.error('Error fetching class:', err);
+            return res.status(500).send({ message: 'Internal Server Error' });
+        }
+
+        // If class exists, fetch teacher ID and update teacher details
+        if (result.length > 0) {
+            const class_id = result[0].id;
+
+            // Step 2: Fetch teacher ID from teachers table
+            const teacherQuery = `SELECT id FROM teachers WHERE username = ?`;
+
+            db.query(teacherQuery, [teacher_username], (err, teacherResult) => {
+                if (err) {
+                    console.error('Error fetching teacher ID:', err);
+                    return res.status(500).send({ message: 'Internal Server Error' });
+                }
+
+                if (teacherResult.length === 0) {
+                    return res.status(404).send({ message: 'Teacher not found.' });
+                }
+
+                const teacher_id = teacherResult[0].id;
+
+                // Step 3: Update the teacher details in the existing class
+                const updateClassQuery = `
+                    UPDATE classes 
+                    SET teacher_username = ?, teacher_id = ? 
+                    WHERE id = ?
+                `;
+
+                db.query(updateClassQuery, [teacher_username, teacher_id, class_id], (err, updateResult) => {
+                    if (err) {
+                        console.error('Error updating class:', err);
+                        return res.status(500).send({ message: 'Error updating class.' });
+                    }
+
+                    if (updateResult.affectedRows === 0) {
+                        return res.status(404).send({ message: 'Class not updated.' });
+                    }
+
+                    res.status(200).send({ message: 'Teacher successfully assigned to the class.' });
+                });
+            });
+        } else {
+            // If class doesn't exist, return an error
+            res.status(404).send({ message: 'Class and section not found.' });
+        }
+    });
+});
+
+
+// Fetch classes for a specific admin
+router.get('/getclasses', (req, res) => {
+    const { admin_id } = req.query; // Admin ID from query params
+
+    if (!admin_id) {
+        return res.status(400).send({ message: 'Admin ID is required.' });
+    }
+
+    const fetchClassesQuery = `
+        SELECT * FROM classes WHERE admin_id = ?
+    `;
+
+    db.query(fetchClassesQuery, [admin_id], (err, results) => {
+        if (err) {
+            console.error('Error fetching classes:', err);
+            return res.status(500).send({ message: 'Internal Server Error' });
+        }
+
+        res.status(200).send({ message: 'Classes fetched successfully.', data: results });
+    });
+});
+
+// Admin class ko update kray ga 
+router.put('/updateclass/:id', (req, res) => {
+    const classId = req.params.id;
+    const { class_name, section, teacher_username } = req.body;
+
+    if (!class_name || !section || !teacher_username) {
+        return res.status(400).send({ message: 'Class name, section, and teacher username are required.' });
+    }
+
+    // Check if the same class_name and section already exist
+    const checkDuplicateQuery = `
+        SELECT * FROM classes 
+        WHERE class_name = ? AND section = ? AND id != ?
+    `;
+
+    db.query(checkDuplicateQuery, [class_name, section, classId], (err, results) => {
+        if (err) {
+            console.error('Error checking duplicate class:', err);
+            return res.status(500).send({ message: 'Internal Server Error' });
+        }
+
+        if (results.length > 0) {
+            return res.status(400).send({ message: 'Class with the same name and section already exists.' });
+        }
+
+        // Fetch teacher ID based on teacher_username
+        const getTeacherIdQuery = `SELECT id FROM teachers WHERE username = ?`;
+
+        db.query(getTeacherIdQuery, [teacher_username], (err, teacherResults) => {
+            if (err) {
+                console.error('Error finding teacher ID:', err);
+                return res.status(500).send({ message: 'Internal Server Error' });
+            }
+
+            if (teacherResults.length === 0) {
+                return res.status(404).send({ message: 'Teacher not found.' });
+            }
+
+            const teacherId = teacherResults[0].id;
+
+            // Update the class
+            const updateClassQuery = `
+                UPDATE classes SET class_name = ?, section = ?, teacher_id = ?
+                WHERE id = ?
+            `;
+
+            db.query(updateClassQuery, [class_name, section, teacherId, classId], (err, updateResult) => {
+                if (err) {
+                    console.error('Error updating class:', err);
+                    return res.status(500).send({ message: 'Internal Server Error' });
+                }
+
+                res.status(200).send({ message: 'Class updated successfully.' });
+            });
+        });
+    });
+});
+
+
+
+// Admin class ko delete karay ga 
+router.delete('/deleteclass/:id', (req, res) => {
+    const classId = req.params.id;
+
+    const deleteClassQuery = `
+        DELETE FROM classes WHERE id = ?
+    `;
+
+    db.query(deleteClassQuery, [classId], (err, result) => {
+        if (err) {
+            console.error('Error deleting class:', err);
+            return res.status(500).send({ message: 'Internal Server Error' });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).send({ message: 'Class not found.' });
+        }
+
+        res.status(200).send({ message: 'Class deleted successfully.' });
+    });
+});
+
+// Admin subject wise teachers assign kr rha ha 
+router.post('/assign-subject', (req, res) => {
+    const { subject_name, class_name, section, teacher_username } = req.body;
+
+    // Step 1: Check if the combination of class_name, section, and teacher already exists
+    const checkExistingAssignmentQuery = `
+        SELECT * FROM subjects 
+        WHERE class_name = ? AND section = ? AND teacher_username = ?
+    `;
+
+    db.query(checkExistingAssignmentQuery, [class_name, section, teacher_username], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+
+        // If the combination already exists, return an error message
+        if (result.length > 0) {
+            return res.status(400).json({ error: 'This teacher is already assigned to this class and section.' });
+        }
+
+        // Step 2: Check if class_name and section exist in classes table and get the class_id
+        const checkClassSectionQuery = `
+            SELECT id FROM classes 
+            WHERE class_name = ? AND section = ?
+        `;
+        
+        db.query(checkClassSectionQuery, [class_name, section], (err, classResult) => {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+
+            if (classResult.length === 0) {
+                return res.status(400).json({ error: 'Class or section does not exist.' });
+            }
+
+            const class_id = classResult[0].id; // Get class_id from the result
+
+            // Step 3: Fetch the teacher_id using teacher_username
+            const teacherQuery = `
+                SELECT id FROM teachers WHERE username = ?
+            `;
+            
+            db.query(teacherQuery, [teacher_username], (err, teacherResult) => {
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+
+                if (teacherResult.length === 0) {
+                    return res.status(400).json({ error: 'Teacher not found.' });
+                }
+
+                const teacher_id = teacherResult[0].id; // Get teacher_id from the result
+
+                // Step 4: Fetch admin email from the session or body
+                const admin_email = req.body.admin_email; // Admin email should be passed with the request
+
+                // Step 5: Insert the subject assignment into the subjects table
+                const insertQuery = `
+                    INSERT INTO subjects (subject_name, class_name, section, class_id, teacher_username, teacher_id, admin_email) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `;
+
+                db.query(insertQuery, [subject_name, class_name, section, class_id, teacher_username, teacher_id, admin_email], (err, result) => {
+                    if (err) {
+                        return res.status(500).json({ error: err.message });
+                    }
+
+                    res.status(200).json({ message: 'Teacher assigned to subject successfully!' });
+                });
+            });
+        });
+    });
+});
+
+router.get('/get-assigned-subjects', (req, res) => {
+    const admin_email = req.body.admin_email || req.query.admin_email; // Get the admin's email from the session or query parameter
+
+    if (!admin_email) {
+        return res.status(400).json({ error: 'Admin email is required.' });
+    }
+
+    // Query to fetch assigned subjects based on the admin's email
+    const fetchSubjectsQuery = `
+        SELECT * FROM subjects WHERE admin_email = ?
+    `;
+
+    db.query(fetchSubjectsQuery, [admin_email], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: 'No subjects assigned for this admin.' });
+        }
+
+        res.status(200).json({ subjects: result });
+    });
+});
+
+// Assuming an endpoint exists for updating subjects
+router.put('/update-assigned-subject/:id', (req, res) => {
+    const { id } = req.params;
+    const { subject_name, class_name, section, teacher_username, admin_email } = req.body;
+
+    const updateQuery = `
+        UPDATE subjects 
+        SET subject_name = ?, class_name = ?, section = ?, teacher_username = ?, admin_email = ?
+        WHERE id = ?
+    `;
+    db.query(updateQuery, [subject_name, class_name, section, teacher_username, admin_email, id], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.status(200).json({ success: true });
+    });
+});
+
+
+// Assuming an endpoint exists for deleting subjects
+router.delete('/delete-assigned-subject/:id', (req, res) => {
+    const { id } = req.params;
+
+    const deleteQuery = `
+        DELETE FROM subjects WHERE id = ?
+    `;
+    db.query(deleteQuery, [id], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.status(200).json({ success: true });
+    });
+});
+
+
+
+
+
+
+
 module.exports = router;  
 

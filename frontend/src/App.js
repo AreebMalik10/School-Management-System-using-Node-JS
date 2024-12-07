@@ -11,6 +11,13 @@ import Parent from './components/parent';
 import ChallanForm from './components/challanForm';
 import ViewChallanAdmin from './components/viewChallanAdmin';
 import ChallanShowParent from './components/challanShowParent';
+import AdminCreateClass from './components/adminCreateClass';
+import AdminAssignTeacherClass from './components/adminAssignTeacherToClass';
+import AdminAssignTeacherToClass from './components/adminAssignTeacherToClass';
+import FetchClasses from './components/fetchClasses';
+import AssignSubjectToTeacher from './components/assignSubjectToTeacher';
+import DisplayAssignedSubjectsToTeacher from './components/displayAssignedSubjectsToTeacher';
+import AdminCreateStudent from './components/adminCreateStudent';
 
 
 function App() {
@@ -30,6 +37,12 @@ function App() {
         <Route path='/challan' element={<ChallanForm/>}></Route>
         <Route path='/viewChallanAdmin' element={<ViewChallanAdmin/>}></Route>
         <Route path='/challanshowparent' element={<ChallanShowParent/>}></Route>
+        <Route path='/admincreateclass' element={<AdminCreateClass/>}></Route>
+        <Route path='/adminassignteachertoclass' element={<AdminAssignTeacherToClass/>}></Route>
+        <Route path='/fetchclasses' element={<FetchClasses/>}></Route>
+        <Route path='/assignsubject' element={<AssignSubjectToTeacher/>}></Route>
+        <Route path='/displaysubjectsteacher' element={<DisplayAssignedSubjectsToTeacher/>}></Route>
+        <Route path='/createstudent' element={<AdminCreateStudent/>}></Route>
       </Routes>
       
     </div>

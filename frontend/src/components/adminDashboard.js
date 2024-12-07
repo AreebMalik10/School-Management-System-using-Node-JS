@@ -3,6 +3,12 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // For redirecting after logout
 import ChallanForm from './challanForm';
 import ViewChallanAdmin from './viewChallanAdmin';
+import AdminCreateClass from './adminCreateClass';
+import AdminAssignTeacherToClass from './adminAssignTeacherToClass';
+import FetchClasses from './fetchClasses';
+import AssignSubjectToTeacher from './assignSubjectToTeacher';
+import DisplayAssignedSubjectsToTeacher from './displayAssignedSubjectsToTeacher';
+import AdminCreateStudent from './adminCreateStudent';
 
 const AdminDashboard = () => {
     const [adminName, setAdminName] = useState('');
@@ -467,9 +473,8 @@ const AdminDashboard = () => {
             <p>Email: {adminEmail}</p>
             <button onClick={handleLogout}>Logout</button>
 
-            <div>
-                {/* Student Form */}
-                <h3>Create Student</h3>
+            {/* <div>
+                {/* Student Form }
                 <h3>Create Student</h3>
                 <form onSubmit={handleStudentSubmit}>
                     <input type="text" name="name" value={studentData.name} onChange={(e) => handleInputChange(e, 'student')} placeholder="Student Name" required />
@@ -483,6 +488,10 @@ const AdminDashboard = () => {
                     <input type="text" name="section" value={studentData.section} onChange={(e) => handleInputChange(e, 'student')} placeholder="Section" required />
                     <button type="submit">Create Student</button>
                 </form>
+            </div> */}
+
+            <div>
+                <AdminCreateStudent/>
             </div>
 
 
@@ -851,6 +860,27 @@ const AdminDashboard = () => {
 
             <div>
                 <ViewChallanAdmin />
+            </div>
+
+            <div>
+                <AdminCreateClass/>
+            </div>
+
+            <div>
+                <AdminAssignTeacherToClass/>
+
+            </div>
+
+            <div>
+                <FetchClasses />
+            </div>
+
+            <div>
+                <AssignSubjectToTeacher/>
+            </div>
+
+            <div>
+                <DisplayAssignedSubjectsToTeacher/>
             </div>
 
 
