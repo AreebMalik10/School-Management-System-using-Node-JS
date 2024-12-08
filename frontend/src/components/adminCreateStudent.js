@@ -6,7 +6,9 @@ const AdminCreateStudent = () => {
     const navigate = useNavigate();
     const [adminName, setAdminName] = useState('');
     const [adminEmail, setAdminEmail] = useState('');
-    
+    const [students, setStudents] = useState([]); // State for fetched students
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [studentIdToUpdate, setStudentIdToUpdate] = useState(null);
     const [studentData, setStudentData] = useState({
         name: '',
         fatherName: '',
@@ -19,10 +21,10 @@ const AdminCreateStudent = () => {
         section: ''
     });
 
+    // Validate admin login and set admin details
     useEffect(() => {
         const name = localStorage.getItem('adminName');
         const email = localStorage.getItem('adminEmail');
-
         if (name && email) {
             setAdminName(name);
             setAdminEmail(email);
@@ -31,16 +33,8 @@ const AdminCreateStudent = () => {
         }
     }, [navigate]);
 
-    const handleInputChange = (e, field) => {
-        setStudentData({
-            ...studentData,
-            [field]: e.target.value
-        });
-    };
-
-    const handleStudentSubmit = async (e) => {
-        e.preventDefault();
-
+    // Fetch student list for the admin
+    useEffect(() => {
         const adminId = localStorage.getItem('adminId');
         if (!adminId) {
             alert('Admin ID not found. Please log in again.');
@@ -48,47 +42,130 @@ const AdminCreateStudent = () => {
             return;
         }
 
-        const studentDataWithAdminId = {
-            ...studentData,
-            adminId,
-        };
+        axios.get(`http://localhost:5000/manageroute/getStudents?adminId=${adminId}`)
+            .then(response => setStudents(response.data))
+            .catch(error => console.error('Error fetching students:', error));
+    }, [navigate]);
+
+    // Handle form input changes
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setStudentData({ ...studentData, [name]: value });
+    };
+
+    // Submit new student data
+    const handleStudentSubmit = async (e) => {
+        e.preventDefault();
+        const adminId = localStorage.getItem('adminId');
+        if (!adminId) {
+            alert('Admin ID not found. Please log in again.');
+            navigate('/adminlogin');
+            return;
+        }
+
+        const payload = { ...studentData, adminId };
 
         try {
-            const response = await axios.post('http://localhost:5000/manageroute/createStudent', studentDataWithAdminId);
+            const response = await axios.post('http://localhost:5000/manageroute/createStudent', payload);
             alert(response.data.message);
-
-            setStudentData({
-                name: '',
-                fatherName: '',
-                regNo: '',
-                contact: '',
-                age: '',
-                username: '',
-                password: '',
-                class: '',
-                section: ''
-            });
+            setStudents([...students, response.data.student]); // Add new student to list
+            resetForm();
         } catch (error) {
             console.error('Error creating student:', error.response?.data || error);
             alert(error.response?.data?.message || 'Error creating student');
         }
     };
 
+    // Reset the student form
+    const resetForm = () => {
+        setStudentData({
+            name: '',
+            fatherName: '',
+            regNo: '',
+            contact: '',
+            age: '',
+            username: '',
+            password: '',
+            class: '',
+            section: ''
+        });
+        setIsUpdating(false);
+        setStudentIdToUpdate(null);
+    };
+
+    // Update existing student data
+    const handleStudentUpdate = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.put(`http://localhost:5000/manageroute/updateStudent/${studentIdToUpdate}`, studentData);
+            alert(response.data.message);
+            setStudents(students.map((student) =>
+                student.studentId === studentIdToUpdate ? { ...student, ...studentData } : student
+            ));
+            resetForm();
+        } catch (error) {
+            console.error('Error updating student:', error.response?.data || error);
+            alert(error.response?.data?.message || 'Error updating student');
+        }
+    };
+
+    // Handle student delete
+    const handleDelete = async (studentId) => {
+        try {
+            const response = await axios.delete(`http://localhost:5000/manageroute/deleteStudent/${studentId}`);
+            alert(response.data.message);
+            setStudents(students.filter((student) => student.studentId !== studentId));
+        } catch (error) {
+            console.error('Error deleting student:', error);
+            alert('Error deleting student');
+        }
+    };
+
+    // Populate the form for updating
+    const handleUpdateClick = (student) => {
+        setStudentData(student);
+        setStudentIdToUpdate(student.studentId);
+        setIsUpdating(true);
+    };
+
     return (
         <div>
-            <h3>Create Student</h3>
-            <form onSubmit={handleStudentSubmit}>
-                <input type="text" name="name" value={studentData.name} onChange={(e) => handleInputChange(e, 'name')} placeholder="Student Name" required />
-                <input type="text" name="fatherName" value={studentData.fatherName} onChange={(e) => handleInputChange(e, 'fatherName')} placeholder="Father's Name" required />
-                <input type="text" name="regNo" value={studentData.regNo} onChange={(e) => handleInputChange(e, 'regNo')} placeholder="Registration No" required />
-                <input type="text" name="contact" value={studentData.contact} onChange={(e) => handleInputChange(e, 'contact')} placeholder="Contact" required />
-                <input type="number" name="age" value={studentData.age} onChange={(e) => handleInputChange(e, 'age')} placeholder="Age" required />
-                <input type="text" name="username" value={studentData.username} onChange={(e) => handleInputChange(e, 'username')} placeholder="Username" required />
-                <input type="password" name="password" value={studentData.password} onChange={(e) => handleInputChange(e, 'password')} placeholder="Password" required />
-                <input type="text" name="class" value={studentData.class} onChange={(e) => handleInputChange(e, 'class')} placeholder="Class" required />
-                <input type="text" name="section" value={studentData.section} onChange={(e) => handleInputChange(e, 'section')} placeholder="Section" required />
-                <button type="submit">Create Student</button>
+            <h3>{isUpdating ? 'Update Student' : 'Create Student'}</h3>
+            <form onSubmit={isUpdating ? handleStudentUpdate : handleStudentSubmit}>
+                {['name', 'fatherName', 'regNo', 'contact', 'age', 'username', 'password', 'class', 'section'].map((field) => (
+                    <input
+                        key={field}
+                        type={field === 'age' ? 'number' : field === 'password' ? 'password' : 'text'}
+                        name={field}
+                        value={studentData[field]}
+                        onChange={handleInputChange}
+                        placeholder={field.replace(/^\w/, (c) => c.toUpperCase())}
+                        required
+                    />
+                ))}
+                <button type="submit">{isUpdating ? 'Update' : 'Create'}</button>
+                {isUpdating && <button type="button" onClick={resetForm}>Cancel</button>}
             </form>
+
+            <h4>List of Students</h4>
+            {students.length > 0 ? (
+                students.map((student) => (
+                    <div key={student.studentId}>
+                        <p>Name: {student.name}</p>
+                        <p>Father's Name: {student.fatherName}</p>
+                        <p>Registration No: {student.regNo}</p>
+                        <p>Contact: {student.contact}</p>
+                        <p>Age: {student.age}</p>
+                        <p>Student Username: {student.username}</p>
+                        <p>Class: {student.class}</p>
+                        <p>Section: {student.section}</p>
+                        <button onClick={() => handleUpdateClick(student)}>Update</button>
+                        <button onClick={() => handleDelete(student.studentId)}>Delete</button>
+                    </div>
+                ))
+            ) : (
+                <p>No students found</p>
+            )}
         </div>
     );
 };

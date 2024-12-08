@@ -100,6 +100,76 @@ router.get('/getStudents', (req, res) => {
     });
 });
 
+// Update student route
+router.put('/updateStudent/:studentId', (req, res) => {
+    const {
+        studentId, // Primary key to identify the student
+        name,
+        fatherName,
+        regNo,
+        contact,
+        age,
+        username,
+        class: studentClass, // Updated field for class
+        section,
+    } = req.body;
+
+    // Validate required fields
+    if (!studentId || !name || !fatherName || !regNo || !contact || !age || !username || !studentClass) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const query = `
+        UPDATE students
+        SET 
+            name = ?,
+            fatherName = ?,
+            regNo = ?,
+            contact = ?,
+            age = ?,
+            username = ?,
+            class = ?,
+            section = ?
+        WHERE 
+            student_id = ?
+    `;
+
+    const params = [name, fatherName, regNo, contact, age, username, studentClass, section, studentId];
+
+    db.query(query, params, (err, results) => {
+        if (err) {
+            console.error('Error updating student:', err);
+            return res.status(500).json({ message: 'Error updating student' });
+        }
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+        res.status(200).json({ message: 'Student updated successfully' });
+    });
+});
+
+
+  
+
+// Delete student route
+router.delete('/deleteStudent/:id', (req, res) => {
+    const studentId = req.params.id;
+  
+    const query = 'DELETE FROM students WHERE student_id = ?';
+  
+    db.query(query, [studentId], (err, result) => {
+      if (err) {
+        console.error('Error deleting student:', err);
+        return res.status(500).json({ message: 'Error deleting student' });
+      }
+      res.status(200).json({ message: 'Student deleted successfully' });
+    });
+});  
+
+
+
+
+
 
 
 
@@ -167,48 +237,6 @@ router.post('/createParent', async (req, res) => {
 
 
 
-// Update student route
-router.put('/updateStudent/:id', async (req, res) => {
-    const studentId = req.params.id;
-    const { name, fatherName, regNo, contact, age, username, password, class: studentClass, section } = req.body;
-
-    let hashedPassword = password;
-    if (password) {
-        const salt = await bcrypt.genSalt(10);
-        hashedPassword = await bcrypt.hash(password, salt);
-    }
-
-    const query = `
-        UPDATE students
-        SET name = ?, fatherName = ?, regNo = ?, contact = ?, age = ?, username = ?, password = ?, class = ?, section = ?
-        WHERE student_id = ?
-    `;
-
-    db.query(query, [name, fatherName, regNo, contact, age, username, hashedPassword, studentClass, section, studentId], (err, result) => {
-        if (err) {
-            console.error('Error updating student:', err);
-            return res.status(500).json({ message: 'Error updating student' });
-        }
-        res.status(200).json({ message: 'Student updated successfully' });
-    });
-});
-
-
-
-// Delete student route
-router.delete('/deleteStudent/:id', (req, res) => {
-    const studentId = req.params.id;
-
-    const query = 'DELETE FROM students WHERE id = ?';
-    
-    db.query(query, [studentId], (err, result) => {
-        if (err) {
-            console.error('Error deleting student:', err);
-            return res.status(500).json({ message: 'Error deleting student' });
-        }
-        res.status(200).json({ message: 'Student deleted successfully' });
-    });
-});
 
 
 router.get('/getTeachersByAdmin/:adminId', (req, res) => {

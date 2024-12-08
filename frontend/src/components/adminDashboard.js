@@ -9,6 +9,7 @@ import FetchClasses from './fetchClasses';
 import AssignSubjectToTeacher from './assignSubjectToTeacher';
 import DisplayAssignedSubjectsToTeacher from './displayAssignedSubjectsToTeacher';
 import AdminCreateStudent from './adminCreateStudent';
+import StudentList from './studentList';
 
 const AdminDashboard = () => {
     const [adminName, setAdminName] = useState('');
@@ -493,6 +494,8 @@ const AdminDashboard = () => {
             <div>
                 <AdminCreateStudent/>
             </div>
+
+            
 
 
             {/* Teacher Form */}

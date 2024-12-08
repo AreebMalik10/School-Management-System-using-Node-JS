@@ -18,6 +18,7 @@ import FetchClasses from './components/fetchClasses';
 import AssignSubjectToTeacher from './components/assignSubjectToTeacher';
 import DisplayAssignedSubjectsToTeacher from './components/displayAssignedSubjectsToTeacher';
 import AdminCreateStudent from './components/adminCreateStudent';
+import StudentList from './components/studentList';
 
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
         <Route path='/assignsubject' element={<AssignSubjectToTeacher/>}></Route>
         <Route path='/displaysubjectsteacher' element={<DisplayAssignedSubjectsToTeacher/>}></Route>
         <Route path='/createstudent' element={<AdminCreateStudent/>}></Route>
+        <Route path='/studentlist' element={<StudentList/>}></Route>
       </Routes>
       
     </div>
