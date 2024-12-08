@@ -23,22 +23,85 @@ router.post('/createStudent', async (req, res) => {
     }
 
     try {
-        const hashedPassword = await hashPassword(password);
-        const query = `INSERT INTO students (name, fatherName, regNo, contact, age, username, password, adminId, class, section) 
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-        db.query(query, [name, fatherName, regNo, contact, age, username, hashedPassword, adminId, studentClass, section], (err, result) => {
+        // Find the class_id based on class and section
+        const findClassQuery = `SELECT id FROM classes WHERE class_name = ? AND section = ?`;
+        db.query(findClassQuery, [studentClass, section], async (err, result) => {
             if (err) {
-                console.error('Error creating student:', err);
-                return res.status(500).json({ message: 'Error creating student' });
+                console.error('Error fetching class_id:', err);
+                return res.status(500).json({ message: 'Error fetching class_id' });
             }
-            res.status(201).json({ message: 'Student created successfully' });
+
+            if (result.length === 0) {
+                return res.status(400).json({ message: 'Class and section not found' });
+            }
+
+            const classId = result[0].id;
+            const hashedPassword = await hashPassword(password);
+
+            // Insert the student record with class_id, class, and section
+            const insertStudentQuery = `
+                INSERT INTO students (name, fatherName, regNo, contact, age, username, password, adminId, class, section, class_id) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            db.query(
+                insertStudentQuery,
+                [name, fatherName, regNo, contact, age, username, hashedPassword, adminId, studentClass, section, classId],
+                (err, result) => {
+                    if (err) {
+                        console.error('Error creating student:', err);
+                        return res.status(500).json({ message: 'Error creating student' });
+                    }
+                    res.status(201).json({ message: 'Student created successfully' });
+                }
+            );
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error creating student' });
     }
 });
+
+// Get students route
+router.get('/getStudents', (req, res) => {
+    const adminId = req.query.adminId;
+
+    if (!adminId) {
+        return res.status(400).json({ message: 'Admin ID is required' });
+    }
+
+    // Updated query with correct column name `student_id`
+    const query = `
+        SELECT 
+            students.student_id AS studentId,
+            students.name,
+            students.fatherName,
+            students.regNo,
+            students.contact,
+            students.age,
+            students.username,
+            classes.class_name AS class,
+            classes.section,
+            students.adminId
+        FROM 
+            students
+        LEFT JOIN 
+            classes 
+        ON 
+            students.class_id = classes.id
+        WHERE 
+            students.adminId = ?
+    `;
+    
+    db.query(query, [adminId], (err, results) => {
+        if (err) {
+            console.error('Error fetching students:', err);
+            return res.status(500).json({ message: 'Error fetching students' });
+        }
+        res.status(200).json(results);
+    });
+});
+
+
+
 
 
 
@@ -93,29 +156,16 @@ router.post('/createParent', async (req, res) => {
         console.error(error);
         res.status(500).json({ message: 'Error creating parent' });
     }
-});
 
-
-
-
-// Get students route
-router.get('/getStudents', (req, res) => {
-    const adminId = req.query.adminId;
-
-    if (!adminId) {
-        return res.status(400).json({ message: 'Admin ID is required' });
-    }
-
-    const query = 'SELECT * FROM students WHERE adminId = ?';
     
-    db.query(query, [adminId], (err, results) => {
-        if (err) {
-            console.error('Error fetching students:', err);
-            return res.status(500).json({ message: 'Error fetching students' });
-        }
-        res.status(200).json(results);
-    });
 });
+
+
+
+
+
+
+
 
 // Update student route
 router.put('/updateStudent/:id', async (req, res) => {
