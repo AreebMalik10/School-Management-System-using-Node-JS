@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useLocation, useNavigate } from "react-router-dom";
+import StudentViewHisChallan from './studentViewHisChallan';
 
 export default function Student() {
     const location = useLocation();
     const navigate = useNavigate();
-    const [challans, setChallans] = useState([]);
-    const [message, setMessage] = useState('');
+    const [studentData, setStudentData] = useState(null);
+    const [error, setError] = useState(null);
+
     
     const { name, username } = useLocation().state || {}; // Get the name and username from location state
 
@@ -18,7 +21,24 @@ export default function Student() {
             // If no token, redirect to login page
             navigate('/');
         }
+        
     }, [navigate]);
+
+    useEffect(()=>{
+        if(username) {
+            axios.get(`http://localhost:5000/student/getstudentdata/${username}`)
+            .then(response =>{
+                setStudentData(response.data);
+                setError(null);
+            })
+            .catch(err =>{
+                setError('Student Data not Found or error fetching data');
+                console.error(err);
+            });
+        } else {
+            setError('No Username Found');
+        }
+    }, [username]);
 
     const handleLogout = () => {
         // Remove token from localStorage
@@ -27,18 +47,7 @@ export default function Student() {
         navigate('/');
     };
 
-    useEffect(() => {
-        if (username) {
-            axios.get(`http://localhost:5000/student/getChallanByUsername?username=${username}`)
-                .then(response => {
-                    setChallans(response.data); // Store the challans in state
-                })
-                .catch(error => {
-                    console.error(error);
-                    setMessage('Error fetching challan data');
-                });
-        }
-    }, [username]);  // Dependency on username to re-fetch when it changes
+
 
 
     return (
@@ -54,41 +63,25 @@ export default function Student() {
                     Logout
                 </button>
             </div>
+            {/* Show student name and username */}
+            {studentData ? (
+                    <>
+                        <h2 className="text-xl">Welcome, {studentData.name}!</h2>
+                        <p className="text-lg">Username: {studentData.username}</p>
+                        <p className="text-lg">Student ID: {studentData.student_id}</p>
+                        <p className="text-lg">Father's Name: {studentData.fatherName}</p>
+                        <p className="text-lg">Reg. No: {studentData.regNo}</p>
+                        <p className="text-lg">Contact: {studentData.contact}</p>
+                        <p className="text-lg">Age: {studentData.age}</p>
+                        <p className="text-lg">Class: {studentData.class}</p>
+                        <p className="text-lg">Section: {studentData.section}</p>
+                    </>
+                ) : (
+                    <p className="text-xl text-red-500">{error || 'Loading student data...'}</p>
+                )}
             <div>
-            <h3>Challan Details</h3>
-            {message && <p>{message}</p>}
-            {challans.length > 0 ? (
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Fee Amount</th>
-                            <th>Fine Amount</th>
-                            <th>Challan Month</th>
-                            <th>Other Expenses</th>
-                            <th>Total Amount</th>
-                            <th>Challan Description</th>
-                            <th>Due Date</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {challans.map(challan => (
-                            <tr key={challan.id}>
-                                <td>{challan.fee_amount}</td>
-                                <td>{challan.fine_amount}</td>
-                                <td>{challan.challan_month}</td>
-                                <td>{challan.others_expense}</td>
-                                <td>{challan.total_amount}</td>
-                                <td>{challan.challan_description}</td>
-                                <td>{challan.due_date}</td>
-                                <td>{challan.status}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            ) : (
-                <p>No challans found for this student.</p>
-            )}
+
+                <StudentViewHisChallan/>
             </div>
         </div>
     );

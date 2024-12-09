@@ -528,7 +528,7 @@ const AdminDashboard = () => {
                 </form>
             </div>
 
-            <h3>Admin Dashboard</h3>
+          {/* <h3>Admin Dashboard</h3>
             <h4>List of Students</h4>
             {loading ? (
                 <p>Loading students...</p>
@@ -543,8 +543,8 @@ const AdminDashboard = () => {
                                 <p>Contact: {student.contact}</p>
                                 <p>Age: {student.age}</p>
                                 <p>Username: {student.username}</p>
-                                <p>Class: {student.class}</p>  {/* Display Class */}
-                                <p>Section: {student.section}</p>  {/* Display Section */}
+                                <p>Class: {student.class}</p>  
+                                <p>Section: {student.section}</p>  
                                 <button onClick={() => handleUpdate(student)}>Update</button>
                                 <button onClick={() => handleDelete(student.id)}>Delete</button>
                             </li>
@@ -556,7 +556,7 @@ const AdminDashboard = () => {
 
             )}
 
-            {/* Update Student Form */}
+            // Update Student Form 
             {isUpdating && (
                 <div>
                     <h4>Update Student</h4>
@@ -631,7 +631,7 @@ const AdminDashboard = () => {
                         </button>
                     </form>
                 </div>
-            )}
+            )} */} 
 
             <h4>List of Teachers</h4>
             {loading ? (
@@ -869,10 +869,7 @@ const AdminDashboard = () => {
                 <AdminCreateClass/>
             </div>
 
-            <div>
-                <AdminAssignTeacherToClass/>
-
-            </div>
+          
 
             <div>
                 <FetchClasses />

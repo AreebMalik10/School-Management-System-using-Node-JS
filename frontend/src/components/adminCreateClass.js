@@ -4,6 +4,7 @@ import axios from 'axios';
 const AdminCreateClass = () => {
     const [className, setClassName] = useState('');
     const [section, setSection] = useState('');
+    const [teacherUsername, setTeacherUsername] = useState(''); // Teacher username state
     const [message, setMessage] = useState(''); // For success or error messages
     const [loading, setLoading] = useState(false); // For loading state
 
@@ -12,7 +13,7 @@ const AdminCreateClass = () => {
     const adminId = localStorage.getItem('adminId');
 
     const handleCreateClass = async () => {
-        if (!className || !section) {
+        if (!className || !section || !teacherUsername) { // Add teacher check
             setMessage("Please fill in all fields.");
             return;
         }
@@ -21,7 +22,8 @@ const AdminCreateClass = () => {
             class_name: className,
             section: section,
             admin_email: adminEmail,
-            admin_id: adminId
+            admin_id: adminId,
+            teacher_username: teacherUsername // Send teacher username
         };
 
         setLoading(true); // Start loading
@@ -31,6 +33,7 @@ const AdminCreateClass = () => {
             console.log("Created class with ID: ", response.data.class_id);
             setClassName(''); // Reset fields
             setSection('');
+            setTeacherUsername(''); // Reset teacher username
         } catch (error) {
             if (error.response && error.response.data && error.response.data.message) {
                 setMessage(error.response.data.message); // Show backend error
@@ -59,6 +62,13 @@ const AdminCreateClass = () => {
                     placeholder="Section" 
                     value={section}
                     onChange={(e) => setSection(e.target.value)} 
+                    required 
+                />
+                <input 
+                    type="text" 
+                    placeholder="Teacher Username" 
+                    value={teacherUsername}
+                    onChange={(e) => setTeacherUsername(e.target.value)} 
                     required 
                 />
                 <button type="submit" disabled={loading}>
