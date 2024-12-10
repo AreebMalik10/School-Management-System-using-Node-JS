@@ -17,7 +17,7 @@ const CreateChallan = () => {
     // Fetch admin's details from localStorage
     useEffect(() => {
         const email = localStorage.getItem('adminEmail');
-        
+
         if (email) {
             setAdminEmail(email);
         } else {
@@ -50,68 +50,132 @@ const CreateChallan = () => {
     };
 
     return (
-        <div>
-            <h2>Create Challan</h2>
-            {message && <p>{message}</p>} {/* Display the message */}
-            <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+        <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-8 mt-10">
+            {/* Heading */}
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Create Challan</h2>
+
+            {/* Message Display */}
+            {message && (
+                <p className="text-green-600 bg-green-100 border border-green-200 p-3 rounded mb-4">
+                    {message}
+                </p>
+            )}
+
+            {/* Form */}
+            <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6">
+                {/* Student Username */}
                 <div>
-                    <label>Student Username:</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Student Username
+                    </label>
                     <input
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Enter student username"
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        required
                     />
                 </div>
+
+                {/* Fee Amount */}
                 <div>
-                    <label>Fee Amount:</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Fee Amount
+                    </label>
                     <input
                         type="number"
                         value={feeAmount}
                         onChange={(e) => setFeeAmount(e.target.value)}
+                        placeholder="Enter fee amount"
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        required
                     />
                 </div>
+
+                {/* Fine Amount */}
                 <div>
-                    <label>Fine Amount:</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Fine Amount
+                    </label>
                     <input
                         type="number"
                         value={fineAmount}
                         onChange={(e) => setFineAmount(e.target.value)}
+                        placeholder="Enter fine amount"
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                 </div>
+
+                {/* Due Date */}
                 <div>
-                    <label>Due Date:</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Due Date
+                    </label>
                     <input
                         type="date"
                         value={dueDate}
                         onChange={(e) => setDueDate(e.target.value)}
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        required
                     />
                 </div>
+
+                {/* Challan Month */}
                 <div>
-                    <label>Challan Month:</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Challan Month
+                    </label>
                     <input
                         type="text"
                         value={challanMonth}
                         onChange={(e) => setChallanMonth(e.target.value)}
+                        placeholder="Enter challan month"
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        required
                     />
                 </div>
+
+                {/* Challan Description */}
                 <div>
-                    <label>Challan Description:</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Challan Description
+                    </label>
                     <textarea
                         value={challanDescription}
                         onChange={(e) => setChallanDescription(e.target.value)}
+                        placeholder="Add a description for the challan"
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        rows="3"
                     />
                 </div>
+
+                {/* Other Expenses */}
                 <div>
-                    <label>Other Expenses:</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Other Expenses
+                    </label>
                     <input
                         type="number"
                         value={othersExpense}
                         onChange={(e) => setOthersExpense(e.target.value)}
+                        placeholder="Enter other expenses"
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                 </div>
-                <button type="submit">Create Challan</button>
+
+                {/* Submit Button */}
+                <div>
+                    <button
+                        type="submit"
+                        className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                    >
+                        Create Challan
+                    </button>
+                </div>
             </form>
         </div>
+
     );
 };
 

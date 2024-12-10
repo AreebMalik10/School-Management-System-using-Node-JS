@@ -50,57 +50,78 @@ const AssignSubjectToTeacher = () => {
     };
 
     return (
-        <div className="assign-subject-form">
-            <h2>Assign Teacher to Subject</h2>
+        <div className="max-w-lg mx-auto bg-white shadow-lg rounded-lg p-8 mt-10">
+            {/* Heading */}
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Assign Teacher to Subject</h2>
 
-            {/* Display success or error message */}
-            {message && <p style={{ color: 'green' }}>{message}</p>}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {/* Success/Error Messages */}
+            {message && <p className="text-green-600 text-sm mb-4">{message}</p>}
+            {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
 
-            <form onSubmit={handleSubmit}>
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Subject Name */}
                 <div>
-                    <label>Subject Name</label>
-                    <input 
-                        type="text" 
-                        value={subject_name} 
-                        onChange={(e) => setSubjectName(e.target.value)} 
-                        required 
+                    <label className="block text-gray-700 font-semibold mb-2">Subject Name</label>
+                    <input
+                        type="text"
+                        value={subject_name}
+                        onChange={(e) => setSubjectName(e.target.value)}
+                        required
+                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter Subject Name"
                     />
                 </div>
 
+                {/* Class Name */}
                 <div>
-                    <label>Class Name</label>
-                    <input 
-                        type="text" 
-                        value={class_name} 
-                        onChange={(e) => setClassName(e.target.value)} 
-                        required 
+                    <label className="block text-gray-700 font-semibold mb-2">Class Name</label>
+                    <input
+                        type="text"
+                        value={class_name}
+                        onChange={(e) => setClassName(e.target.value)}
+                        required
+                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter Class Name"
                     />
                 </div>
 
+                {/* Section */}
                 <div>
-                    <label>Section</label>
-                    <input 
-                        type="number" 
-                        value={section} 
-                        onChange={(e) => setSection(e.target.value)} 
-                        required 
+                    <label className="block text-gray-700 font-semibold mb-2">Section</label>
+                    <input
+                        type="number"
+                        value={section}
+                        onChange={(e) => setSection(e.target.value)}
+                        required
+                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter Section"
                     />
                 </div>
 
+                {/* Teacher Username */}
                 <div>
-                    <label>Teacher Username</label>
-                    <input 
-                        type="text" 
-                        value={teacher_username} 
-                        onChange={(e) => setTeacherUsername(e.target.value)} 
-                        required 
+                    <label className="block text-gray-700 font-semibold mb-2">Teacher Username</label>
+                    <input
+                        type="text"
+                        value={teacher_username}
+                        onChange={(e) => setTeacherUsername(e.target.value)}
+                        required
+                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter Teacher Username"
                     />
                 </div>
 
-                <button type="submit">Assign Teacher</button>
+                {/* Submit Button */}
+                <button
+                    type="submit"
+                    className="w-full py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+                >
+                    Assign Teacher
+                </button>
             </form>
         </div>
+
     );
 };
 export default AssignSubjectToTeacher;

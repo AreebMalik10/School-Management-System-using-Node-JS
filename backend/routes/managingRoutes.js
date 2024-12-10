@@ -168,14 +168,6 @@ router.delete('/deleteStudent/:id', (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
 // Create teacher route
 router.post('/createTeacher', async (req, res) => {
     const { name, contact, education, experience, pay, username, password, adminId } = req.body;
@@ -229,13 +221,6 @@ router.post('/createParent', async (req, res) => {
 
     
 });
-
-
-
-
-
-
-
 
 
 

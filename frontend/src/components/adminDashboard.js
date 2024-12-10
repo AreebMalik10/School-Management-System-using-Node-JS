@@ -491,7 +491,7 @@ const AdminDashboard = () => {
                 </form>
             </div> */}
 
-            <div>
+            <div className='mb-10 mt-10'>
                 <AdminCreateStudent/>
             </div>
 
@@ -499,363 +499,353 @@ const AdminDashboard = () => {
 
 
             {/* Teacher Form */}
-            <div>
-                <h3>Create Teacher</h3>
-                <form onSubmit={handleTeacherSubmit}>
-                    <input type="text" name="name" value={teacherData.name} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Teacher Name" required />
-                    <input type="text" name="contact" value={teacherData.contact} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Contact" required />
-                    <input type="text" name="education" value={teacherData.education} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Education" required />
-                    <input type="text" name="experience" value={teacherData.experience} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Experience" required />
-                    <input type="number" name="pay" value={teacherData.pay} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Pay" required />
-                    <input type="text" name="username" value={teacherData.username} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Username" required />
-                    <input type="password" name="password" value={teacherData.password} onChange={(e) => handleInputChange(e, 'teacher')} placeholder="Password" required />
-                    <button type="submit">Create Teacher</button>
-                </form>
-            </div>
+            <div className="p-6 max-w-4xl mx-auto bg-white shadow-md rounded-lg mt-10">
+    {/* Teacher Form */}
+    <div className="mb-10">
+        <h3 className="text-2xl font-bold text-gray-700 mb-6">Create Teacher</h3>
+        <form onSubmit={handleTeacherSubmit} className="space-y-4">
+            {['name', 'contact', 'education', 'experience', 'pay', 'username', 'password'].map((field) => (
+                <div key={field}>
+                    <label
+                        htmlFor={field}
+                        className="block text-sm font-medium text-gray-600 mb-1 capitalize"
+                    >
+                        {field.replace(/^\w/, (c) => c.toUpperCase())}
+                    </label>
+                    <input
+                        type={field === 'pay' ? 'number' : field === 'password' ? 'password' : 'text'}
+                        name={field}
+                        id={field}
+                        value={teacherData[field]}
+                        onChange={(e) => handleInputChange(e, 'teacher')}
+                        placeholder={`Enter ${field}`}
+                        required
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                </div>
+            ))}
+            <button
+                type="submit"
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+            >
+                Create Teacher
+            </button>
+        </form>
+    </div>
 
-            {/* Parent Form */}
-            <div>
-                <h3>Create Parent</h3>
-                <form onSubmit={handleParentSubmit}>
-                    <input type="text" name="name" value={parentData.name} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Parent Name" required />
-                    <input type="text" name="childrenName" value={parentData.childrenName} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Children Name" required />
-                    <input type="text" name="childUsername" value={parentData.childUsername} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Child Username" required />
-                    <input type="text" name="occupation" value={parentData.occupation} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Occupation" required />
-                    <input type="text" name="contact" value={parentData.contact} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Contact" required />
-                    <input type="text" name="username" value={parentData.username} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Username" required />
-                    <input type="password" name="password" value={parentData.password} onChange={(e) => handleInputChange(e, 'parent')} placeholder="Password" required />
-                    <button type="submit">Create Parent</button>
-                </form>
-            </div>
-
-          {/* <h3>Admin Dashboard</h3>
-            <h4>List of Students</h4>
-            {loading ? (
-                <p>Loading students...</p>
+    {/* List of Teachers */}
+    <h4 className="text-xl font-semibold text-gray-700 mb-4">List of Teachers</h4>
+    {loading ? (
+        <p className="text-gray-500">Loading teachers...</p>
+    ) : (
+        <div className="space-y-4">
+            {teachers.length > 0 ? (
+                teachers.map((teacher) => (
+                    <div key={teacher.id} className="p-4 border rounded-lg bg-gray-50 shadow-sm">
+                        <p>
+                            <span className="font-semibold">Name:</span> {teacher.name}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Contact:</span> {teacher.contact}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Education:</span> {teacher.education}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Experience:</span> {teacher.experience}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Pay:</span> {teacher.pay}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Username:</span> {teacher.username}
+                        </p>
+                        <div className="flex space-x-4 mt-4">
+                            <button
+                                onClick={() => setEditingTeacher(teacher)}
+                                className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition"
+                            >
+                                Update
+                            </button>
+                            <button
+                                onClick={() => handleDeleteTeacher(teacher.id)}
+                                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                ))
             ) : (
-                <ul>
-                    {students.length > 0 ? (
-                        students.map((student) => (
-                            <li key={student.id}>
-                                <p>Name: {student.name}</p>
-                                <p>Father's Name: {student.fatherName}</p>
-                                <p>Registration No: {student.regNo}</p>
-                                <p>Contact: {student.contact}</p>
-                                <p>Age: {student.age}</p>
-                                <p>Username: {student.username}</p>
-                                <p>Class: {student.class}</p>  
-                                <p>Section: {student.section}</p>  
-                                <button onClick={() => handleUpdate(student)}>Update</button>
-                                <button onClick={() => handleDelete(student.id)}>Delete</button>
-                            </li>
-                        ))
-                    ) : (
-                        <li>No students found</li>
-                    )}
-                </ul>
-
+                <p className="text-gray-600">No teachers found</p>
             )}
 
-            // Update Student Form 
-            {isUpdating && (
-                <div>
-                    <h4>Update Student</h4>
-                    <form onSubmit={handleStudentUpdate}>
-                        <input
-                            type="text"
-                            value={studentData.name}
-                            onChange={(e) => setStudentData({ ...studentData, name: e.target.value })}
-                            placeholder="Name"
-                            required
-                        />
-                        <input
-                            type="text"
-                            value={studentData.fatherName}
-                            onChange={(e) => setStudentData({ ...studentData, fatherName: e.target.value })}
-                            placeholder="Father's Name"
-                            required
-                        />
-                        <input
-                            type="text"
-                            value={studentData.regNo}
-                            onChange={(e) => setStudentData({ ...studentData, regNo: e.target.value })}
-                            placeholder="Registration No"
-                            required
-                        />
-                        <input
-                            type="text"
-                            value={studentData.contact}
-                            onChange={(e) => setStudentData({ ...studentData, contact: e.target.value })}
-                            placeholder="Contact"
-                            required
-                        />
-                        <input
-                            type="number"
-                            value={studentData.age}
-                            onChange={(e) => setStudentData({ ...studentData, age: e.target.value })}
-                            placeholder="Age"
-                            required
-                        />
-                        <input
-                            type="text"
-                            value={studentData.username}
-                            onChange={(e) => setStudentData({ ...studentData, username: e.target.value })}
-                            placeholder="Username"
-                            required
-                        />
-                        <input
-                            type="text"
-                            value={studentData.password}
-                            onChange={(e) => setStudentData({ ...studentData, password: e.target.value })}
-                            placeholder="Password"
-                            required
-                        />
-                        <input
-                            type="text"
-                            value={studentData.class}
-                            onChange={(e) => setStudentData({ ...studentData, class: e.target.value })}
-                            placeholder="Class"
-                            required
-                        />
-                        <input
-                            type="text"
-                            value={studentData.section}
-                            onChange={(e) => setStudentData({ ...studentData, section: e.target.value })}
-                            placeholder="Section"
-                            required
-                        />
-
-                        <button type="submit">Update</button>
-                        <button type="button" onClick={() => setIsUpdating(false)}>
-                            Cancel
-                        </button>
+            {/* Edit Teacher Form */}
+            {editingTeacher && (
+                <div className="mt-8 p-6 bg-gray-100 border rounded-lg shadow-md">
+                    <h3 className="text-xl font-semibold text-gray-700 mb-4">Update Teacher</h3>
+                    <form onSubmit={() => handleUpdateTeacher(editingTeacher.id)} className="space-y-4">
+                        {['name', 'contact', 'education', 'experience', 'pay', 'username', 'password'].map((field) => (
+                            <div key={field}>
+                                <label
+                                    htmlFor={field}
+                                    className="block text-sm font-medium text-gray-600 mb-1 capitalize"
+                                >
+                                    {field.replace(/^\w/, (c) => c.toUpperCase())}
+                                </label>
+                                <input
+                                    type={field === 'pay' ? 'number' : field === 'password' ? 'password' : 'text'}
+                                    name={field}
+                                    id={field}
+                                    value={editingTeacher[field]}
+                                    onChange={(e) =>
+                                        setEditingTeacher({
+                                            ...editingTeacher,
+                                            [field]: e.target.value,
+                                        })
+                                    }
+                                    placeholder={`Update ${field}`}
+                                    required
+                                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                />
+                            </div>
+                        ))}
+                        <div className="flex space-x-4">
+                            <button
+                                type="submit"
+                                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
+                            >
+                                Update
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setEditingTeacher(null)}
+                                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+                            >
+                                Cancel
+                            </button>
+                        </div>
                     </form>
                 </div>
-            )} */} 
-
-            <h4>List of Teachers</h4>
-            {loading ? (
-                <p>Loading teachers...</p>
-            ) : (
-                <ul>
-                    {teachers.length > 0 ? (
-                        teachers.map((teacher) => (
-                            <li key={teacher.id}>
-                                <p>Name: {teacher.name}</p>
-                                <p>Contact: {teacher.contact}</p>
-                                <p>Education: {teacher.education}</p>
-                                <p>Experience: {teacher.experience}</p>
-                                <p>Pay: {teacher.pay}</p>
-                                <p>Username: {teacher.username}</p>
-                                <button onClick={() => setEditingTeacher(teacher)}>Update</button>
-                                <button onClick={() => handleDeleteTeacher(teacher.id)}>Delete</button>
+            )}
+        </div>
+    )}
+</div>
 
 
-                            </li>
-                        ))
-                    ) : (
-                        <li>No teachers found</li>
-                    )}
-                    {/* Edit Teacher Form */}
-                    {editingTeacher && (
-                        <div>
-                            <h3>Update Teacher</h3>
-                            <form onSubmit={() => handleUpdateTeacher(editingTeacher.id)}>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={editingTeacher.name}
-                                    onChange={(e) => setEditingTeacher({ ...editingTeacher, name: e.target.value })}
-                                    placeholder="Name"
-                                    required
-                                />
-                                <input
-                                    type="text"
-                                    name="contact"
-                                    value={editingTeacher.contact}
-                                    onChange={(e) => setEditingTeacher({ ...editingTeacher, contact: e.target.value })}
-                                    placeholder="Contact"
-                                    required
-                                />
-                                <input
-                                    type="text"
-                                    name="education"
-                                    value={editingTeacher.education}
-                                    onChange={(e) => setEditingTeacher({ ...editingTeacher, education: e.target.value })}
-                                    placeholder="Education"
-                                    required
-                                />
-                                <input
-                                    type="text"
-                                    name="experience"
-                                    value={editingTeacher.experience}
-                                    onChange={(e) => setEditingTeacher({ ...editingTeacher, experience: e.target.value })}
-                                    placeholder="Experience"
-                                    required
-                                />
-                                <input
-                                    type="number"
-                                    name="pay"
-                                    value={editingTeacher.pay}
-                                    onChange={(e) => setEditingTeacher({ ...editingTeacher, pay: e.target.value })}
-                                    placeholder="Pay"
-                                    required
-                                />
-                                <input
-                                    type="text"
-                                    name="username"
-                                    value={editingTeacher.username}
-                                    onChange={(e) => setEditingTeacher({ ...editingTeacher, username: e.target.value })}
-                                    placeholder="Username"
-                                    required
-                                />
-                                <input
-                                    type="password"
-                                    name="password"
-                                    value={editingTeacher.password}
-                                    onChange={(e) => setEditingTeacher({ ...editingTeacher, password: e.target.value })}
-                                />
-                                <button type="submit">Update</button>
-                                <button type="button" onClick={() => setEditingTeacher(null)}>Cancel</button>
-                            </form>
+            {/* Parent Form */}
+            <div className="p-6 max-w-4xl mx-auto bg-white shadow-md rounded-lg mt-10">
+    {/* Parent Form */}
+    <div className="mb-10">
+        <h3 className="text-2xl font-bold text-gray-700 mb-6">Create Parent</h3>
+        <form onSubmit={handleParentSubmit} className="space-y-4">
+            {['name', 'childrenName', 'childUsername', 'occupation', 'contact', 'username', 'password'].map((field) => (
+                <div key={field}>
+                    <label
+                        htmlFor={field}
+                        className="block text-sm font-medium text-gray-600 mb-1 capitalize"
+                    >
+                        {field.replace(/^\w/, (c) => c.toUpperCase())}
+                    </label>
+                    <input
+                        type={field === 'password' ? 'password' : 'text'}
+                        name={field}
+                        id={field}
+                        value={parentData[field]}
+                        onChange={(e) => handleInputChange(e, 'parent')}
+                        placeholder={`Enter ${field}`}
+                        required
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                </div>
+            ))}
+            <button
+                type="submit"
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+            >
+                Create Parent
+            </button>
+        </form>
+    </div>
+
+    {/* List of Parents */}
+    <h4 className="text-xl font-semibold text-gray-700 mb-4">List of Parents</h4>
+    {loading ? (
+        <p className="text-gray-500">Loading parents...</p>
+    ) : (
+        <div className="space-y-4">
+            {parents.length > 0 ? (
+                parents.map((parent) => (
+                    <div key={parent.id} className="p-4 border rounded-lg bg-gray-50 shadow-sm">
+                        <p>
+                            <span className="font-semibold">Name:</span> {parent.name}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Children:</span> {parent.childrenName}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Child Username:</span> {parent.childUsername}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Occupation:</span> {parent.occupation}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Contact:</span> {parent.contact}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Username:</span> {parent.username}
+                        </p>
+                        <div className="flex space-x-4 mt-4">
+                            <button
+                                onClick={() => handleEditParent(parent)}
+                                className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition"
+                            >
+                                Update
+                            </button>
+                            <button
+                                onClick={() => handleParentDelete(parent.id)}
+                                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+                            >
+                                Delete
+                            </button>
                         </div>
-                    )}
-
-                </ul>
-
+                    </div>
+                ))
+            ) : (
+                <p className="text-gray-600">No parents found</p>
             )}
 
-            <div>
-                <h2>Leave Requests</h2>
-                {leaveRequests.length === 0 ? (
-                    <p>No leave requests available.</p>
-                ) : (
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Teacher Username</th>
-                                <th>Reason</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {leaveRequests.map((request) => (
-                                <tr key={request.id}>
-                                    <td>{request.teacherUsername}</td>
-                                    <td>{request.reason}</td>
-                                    <td>{request.startDate}</td>
-                                    <td>{request.endDate}</td>
-                                    <td>{request.status}</td>
-                                    <td>
-                                        <button
-                                            onClick={() => handleUpdateStatus(request.id, 'Approved')}
-                                            disabled={request.status === 'Approved'}
-                                        >
-                                            Approve
-                                        </button>
-                                        <button
-                                            onClick={() => handleUpdateStatus(request.id, 'Rejected')}
-                                            disabled={request.status === 'Rejected'}
-                                        >
-                                            Reject
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
-            </div>
-
-
-
-
-            {/* List of Parents */}
-            <h4>List of Parents</h4>
-            {loading ? (
-                <p>Loading parents...</p>
-            ) : (
-                <ul>
-                    {parents.length > 0 ? (
-                        parents.map((parent) => (
-                            <li key={parent.id}>
-                                <p>Name: {parent.name}</p>
-                                <p>Children: {parent.childrenName}</p>
-                                <p>Child UserName: {parent.childUsername}</p>
-                                <p>Occupation: {parent.occupation}</p>
-                                <p>Contact: {parent.contact}</p>
-                                <p>Username: {parent.username}</p>
-                                <button onClick={() => handleEditParent(parent)}>Update</button>
-                                <button onClick={() => handleParentDelete(parent.id)}>Delete</button>
-                            </li>
-                        ))
-                    ) : (
-                        <li>No parents found</li>
-                    )}
-
-                    {/* Edit Parent Form */}
-                    {editingParent && (
-                        <div>
-                            <h3>Update Parent</h3>
-                            <form onSubmit={(e) => { e.preventDefault(); handleParentUpdate(editingParent.id); }}>
+            {/* Edit Parent Form */}
+            {editingParent && (
+                <div className="mt-8 p-6 bg-gray-100 border rounded-lg shadow-md">
+                    <h3 className="text-xl font-semibold text-gray-700 mb-4">Update Parent</h3>
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleParentUpdate(editingParent.id);
+                        }}
+                        className="space-y-4"
+                    >
+                        {['name', 'childrenName', 'childUsername', 'occupation', 'contact', 'username', 'password'].map((field) => (
+                            <div key={field}>
+                                <label
+                                    htmlFor={field}
+                                    className="block text-sm font-medium text-gray-600 mb-1 capitalize"
+                                >
+                                    {field.replace(/^\w/, (c) => c.toUpperCase())}
+                                </label>
                                 <input
-                                    type="text"
-                                    value={updatedName}
-                                    onChange={(e) => setUpdatedName(e.target.value)}
-                                    placeholder="Name"
+                                    type={field === 'password' ? 'password' : 'text'}
+                                    name={field}
+                                    id={field}
+                                    value={editingParent[field]}
+                                    onChange={(e) =>
+                                        setEditingParent({
+                                            ...editingParent,
+                                            [field]: e.target.value,
+                                        })
+                                    }
+                                    placeholder={`Update ${field}`}
                                     required
+                                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 />
-                                <input
-                                    type="text"
-                                    value={updatedChildrenName}
-                                    onChange={(e) => setUpdatedChildrenName(e.target.value)}
-                                    placeholder="Children's Name"
-                                    required
-                                />
-                                <input
-                                    type="text"
-                                    value={updatedChildUsername}
-                                    onChange={(e) =>  setUpdatedChildUserName(e.target.value)}
-                                    placeholder="Child Username"
-                                    required
-                                />
-                                <input
-                                    type="text"
-                                    value={updatedOccupation}
-                                    onChange={(e) => setUpdatedOccupation(e.target.value)}
-                                    placeholder="Occupation"
-                                    required
-                                />
-                                <input
-                                    type="text"
-                                    value={updatedContact}
-                                    onChange={(e) => setUpdatedContact(e.target.value)}
-                                    placeholder="Contact"
-                                    required
-                                />
-                                <input
-                                    type="text"
-                                    value={updatedUsername}
-                                    onChange={(e) => setUpdatedUsername(e.target.value)}
-                                    placeholder="Username"
-                                    required
-                                />
-                                <input
-                                    type="password"
-                                    value={updatedPassword}
-                                    onChange={(e) => setUpdatedPassword(e.target.value)}
-                                    placeholder="Password (optional)"
-                                />
-                                <button type="submit">Update</button>
-                                <button type="button" onClick={() => setEditingParent(null)}>Cancel</button>
-                            </form>
+                            </div>
+                        ))}
+                        <div className="flex space-x-4">
+                            <button
+                                type="submit"
+                                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
+                            >
+                                Update
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setEditingParent(null)}
+                                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+                            >
+                                Cancel
+                            </button>
                         </div>
-                    )}
-                </ul>
+                    </form>
+                </div>
             )}
+        </div>
+    )}
+</div>
+
+
+          
+
+
+
+<div className="max-w-6xl mx-auto bg-white shadow-md rounded-lg p-8 mt-10">
+    {/* Heading */}
+    <h2 className="text-2xl font-bold text-gray-800 mb-6">Leave Requests</h2>
+
+    {/* Leave Request Table */}
+    {leaveRequests.length === 0 ? (
+        <p className="text-lg text-gray-500">No leave requests available.</p>
+    ) : (
+        <div className="overflow-x-auto shadow-md rounded-lg">
+            <table className="w-full text-left table-auto">
+                <thead className="bg-blue-500 text-white">
+                    <tr>
+                        <th className="px-4 py-2 border">Teacher Username</th>
+                        <th className="px-4 py-2 border">Reason</th>
+                        <th className="px-4 py-2 border">Start Date</th>
+                        <th className="px-4 py-2 border">End Date</th>
+                        <th className="px-4 py-2 border">Status</th>
+                        <th className="px-4 py-2 border">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {leaveRequests.map((request) => (
+                        <tr key={request.id} className="bg-gray-50 hover:bg-gray-100 transition duration-200">
+                            <td className="px-4 py-2 border">{request.teacherUsername}</td>
+                            <td className="px-4 py-2 border">{request.reason}</td>
+                            <td className="px-4 py-2 border">{request.startDate}</td>
+                            <td className="px-4 py-2 border">{request.endDate}</td>
+                            <td className="px-4 py-2 border">
+                                <span
+                                    className={`inline-block px-2 py-1 rounded-full text-white ${
+                                        request.status === 'Approved'
+                                            ? 'bg-green-500'
+                                            : request.status === 'Rejected'
+                                            ? 'bg-red-500'
+                                            : 'bg-yellow-500'
+                                    }`}
+                                >
+                                    {request.status}
+                                </span>
+                            </td>
+                            <td className="px-4 py-2 border flex gap-2">
+                                {/* Button to approve leave */}
+                                <button
+                                    onClick={() => handleUpdateStatus(request.id, 'Approved')}
+                                    disabled={request.status === 'Approved'}
+                                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                >
+                                    Approve
+                                </button>
+
+                                {/* Button to reject leave */}
+                                <button
+                                    onClick={() => handleUpdateStatus(request.id, 'Rejected')}
+                                    disabled={request.status === 'Rejected'}
+                                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-red-300"
+                                >
+                                    Reject
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    )}
+</div>
+
+
 
             <div>
                 <ChallanForm />

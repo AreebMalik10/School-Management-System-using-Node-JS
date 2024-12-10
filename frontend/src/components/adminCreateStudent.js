@@ -129,44 +129,107 @@ const AdminCreateStudent = () => {
     };
 
     return (
-        <div>
-            <h3>{isUpdating ? 'Update Student' : 'Create Student'}</h3>
-            <form onSubmit={isUpdating ? handleStudentUpdate : handleStudentSubmit}>
-                {['name', 'fatherName', 'regNo', 'contact', 'age', 'username', 'password', 'class', 'section'].map((field) => (
+        <div className="p-6 max-w-4xl mx-auto bg-white shadow-md rounded-lg">
+        <h3 className="text-2xl font-bold text-gray-700 mb-6">
+            {isUpdating ? 'Update Student' : 'Create Student'}
+        </h3>
+        <form
+            onSubmit={isUpdating ? handleStudentUpdate : handleStudentSubmit}
+            className="space-y-4"
+        >
+            {['name', 'fatherName', 'regNo', 'contact', 'age', 'username', 'password', 'class', 'section'].map((field) => (
+                <div key={field}>
+                    <label
+                        className="block text-sm font-medium text-gray-600 mb-1 capitalize"
+                        htmlFor={field}
+                    >
+                        {field.replace(/^\w/, (c) => c.toUpperCase())}
+                    </label>
                     <input
-                        key={field}
                         type={field === 'age' ? 'number' : field === 'password' ? 'password' : 'text'}
                         name={field}
+                        id={field}
                         value={studentData[field]}
                         onChange={handleInputChange}
-                        placeholder={field.replace(/^\w/, (c) => c.toUpperCase())}
+                        placeholder={`Enter ${field}`}
                         required
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
-                ))}
-                <button type="submit">{isUpdating ? 'Update' : 'Create'}</button>
-                {isUpdating && <button type="button" onClick={resetForm}>Cancel</button>}
-            </form>
-
-            <h4>List of Students</h4>
-            {students.length > 0 ? (
-                students.map((student) => (
-                    <div key={student.studentId}>
-                        <p>Name: {student.name}</p>
-                        <p>Father's Name: {student.fatherName}</p>
-                        <p>Registration No: {student.regNo}</p>
-                        <p>Contact: {student.contact}</p>
-                        <p>Age: {student.age}</p>
-                        <p>Student Username: {student.username}</p>
-                        <p>Class: {student.class}</p>
-                        <p>Section: {student.section}</p>
-                        <button onClick={() => handleUpdateClick(student)}>Update</button>
-                        <button onClick={() => handleDelete(student.studentId)}>Delete</button>
+                </div>
+            ))}
+            <div className="flex space-x-4">
+                <button
+                    type="submit"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                >
+                    {isUpdating ? 'Update' : 'Create'}
+                </button>
+                {isUpdating && (
+                    <button
+                        type="button"
+                        onClick={resetForm}
+                        className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+                    >
+                        Cancel
+                    </button>
+                )}
+            </div>
+        </form>
+    
+        <h4 className="text-xl font-semibold text-gray-700 mt-8 mb-4">List of Students</h4>
+        {students.length > 0 ? (
+            <div className="space-y-4">
+                {students.map((student) => (
+                    <div
+                        key={student.studentId}
+                        className="p-4 border rounded-lg bg-gray-50 shadow-sm"
+                    >
+                        <p>
+                            <span className="font-semibold">Name:</span> {student.name}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Father's Name:</span> {student.fatherName}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Registration No:</span> {student.regNo}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Contact:</span> {student.contact}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Age:</span> {student.age}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Username:</span> {student.username}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Class:</span> {student.class}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Section:</span> {student.section}
+                        </p>
+                        <div className="flex space-x-4 mt-4">
+                            <button
+                                onClick={() => handleUpdateClick(student)}
+                                className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition"
+                            >
+                                Update
+                            </button>
+                            <button
+                                onClick={() => handleDelete(student.studentId)}
+                                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+                            >
+                                Delete
+                            </button>
+                        </div>
                     </div>
-                ))
-            ) : (
-                <p>No students found</p>
-            )}
-        </div>
+                ))}
+            </div>
+        ) : (
+            <p className="text-gray-600">No students found</p>
+        )}
+    </div>
+    
     );
 };
 

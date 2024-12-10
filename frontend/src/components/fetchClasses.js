@@ -63,9 +63,9 @@ const FetchClasses = () => {
                 teacher_username: teacherUsername,
                 admin_id: adminId, // Pass admin ID
             });
-    
+
             setMessage(response.data.message);
-    
+
             // Update the class list locally
             setClasses((prevClasses) =>
                 prevClasses.map((cls) =>
@@ -74,7 +74,7 @@ const FetchClasses = () => {
                         : cls
                 )
             );
-    
+
             handleCancelEdit();
         } catch (error) {
             console.error("Error updating class:", error);
@@ -83,7 +83,7 @@ const FetchClasses = () => {
             );
         }
     };
-    
+
 
     // Handle delete class
     const handleDelete = async (id) => {
@@ -109,68 +109,96 @@ const FetchClasses = () => {
     };
 
     return (
-        <div>
-            <h3>Your Classes</h3>
-            {message && <p>{message}</p>}
+        <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8 mt-10">
+            {/* Heading */}
+            <h3 className="text-2xl font-bold text-gray-800 mb-6">Your Classes</h3>
+
+            {/* Message Display */}
+            {message && <p className="text-red-500 text-sm mb-4">{message}</p>}
+
+            {/* Table */}
             {classes.length > 0 ? (
-                <table>
+                <table className="min-w-full table-auto border-collapse">
                     <thead>
-                        <tr>
-                            <th>Class Name</th>
-                            <th>Section</th>
-                            <th>Class Teacher</th>
-                            <th>Actions</th>
+                        <tr className="bg-blue-100 text-gray-700">
+                            <th className="py-3 px-4 text-left">Class Name</th>
+                            <th className="py-3 px-4 text-left">Section</th>
+                            <th className="py-3 px-4 text-left">Class Teacher</th>
+                            <th className="py-3 px-4 text-left">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {classes.map((cls) => (
-                            <tr key={cls.id}>
-                                <td>
+                            <tr key={cls.id} className="border-b">
+                                <td className="py-4 px-4">
                                     {editingClass === cls.id ? (
                                         <input
                                             type="text"
                                             value={className}
                                             onChange={(e) => setClassName(e.target.value)}
                                             placeholder="Class Name"
+                                            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                                         />
                                     ) : (
                                         cls.class_name
                                     )}
                                 </td>
-                                <td>
+                                <td className="py-4 px-4">
                                     {editingClass === cls.id ? (
                                         <input
                                             type="number"
                                             value={section}
                                             onChange={(e) => setSection(e.target.value)}
                                             placeholder="Section"
+                                            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                                         />
                                     ) : (
                                         cls.section
                                     )}
                                 </td>
-                                <td>
+                                <td className="py-4 px-4">
                                     {editingClass === cls.id ? (
                                         <input
                                             type="text"
                                             value={teacherUsername}
                                             onChange={(e) => setTeacherUsername(e.target.value)}
                                             placeholder="Teacher Username"
+                                            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                                         />
                                     ) : (
                                         cls.teacher_username || 'Not Assigned'
                                     )}
                                 </td>
-                                <td>
+                                <td className="py-4 px-4">
                                     {editingClass === cls.id ? (
                                         <>
-                                            <button onClick={() => handleSave(cls.id)}>Save</button>
-                                            <button onClick={handleCancelEdit}>Cancel</button>
+                                            <button
+                                                onClick={() => handleSave(cls.id)}
+                                                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 mr-2"
+                                            >
+                                                Save
+                                            </button>
+                                            <button
+                                                onClick={handleCancelEdit}
+                                                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                                            >
+                                                Cancel
+                                            </button>
                                         </>
                                     ) : (
                                         <>
-                                            <button onClick={() => handleEdit(cls)}>Edit</button>
-                                            <button onClick={() => handleDelete(cls.id)}>Delete</button>
+                                            <button
+                                                onClick={() => handleEdit(cls)}
+                                                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 mr-2"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(cls.id)}
+                                                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
+                                            >
+                                                Delete
+                                            </button>
                                         </>
                                     )}
                                 </td>
@@ -179,9 +207,10 @@ const FetchClasses = () => {
                     </tbody>
                 </table>
             ) : (
-                <p>No classes found.</p>
+                <p className="text-gray-500">No classes found.</p>
             )}
         </div>
+
     );
 };
 

@@ -46,36 +46,62 @@ const AdminCreateClass = () => {
     };
 
     return (
-        <div>
-            <h3>Create New Class</h3>
-            {message && <p style={{ color: 'red' }}>{message}</p>} {/* Display message */}
-            <form onSubmit={(e) => { e.preventDefault(); handleCreateClass(); }}>
-                <input 
-                    type="text" 
-                    placeholder="Class Name" 
+        <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg p-8 mt-10">
+        {/* Heading */}
+        <h3 className="text-2xl font-bold text-gray-800 mb-6">Create New Class</h3>
+    
+        {/* Message */}
+        {message && <p className="text-red-500 text-sm mb-4">{message}</p>} 
+    
+        {/* Form */}
+        <form onSubmit={(e) => { e.preventDefault(); handleCreateClass(); }} className="space-y-4">
+            {/* Class Name */}
+            <div>
+                <input
+                    type="text"
+                    placeholder="Class Name"
                     value={className}
-                    onChange={(e) => setClassName(e.target.value)} 
-                    required 
+                    onChange={(e) => setClassName(e.target.value)}
+                    required
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                 />
-                <input 
-                    type="number" 
-                    placeholder="Section" 
+            </div>
+    
+            {/* Section */}
+            <div>
+                <input
+                    type="number"
+                    placeholder="Section"
                     value={section}
-                    onChange={(e) => setSection(e.target.value)} 
-                    required 
+                    onChange={(e) => setSection(e.target.value)}
+                    required
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                 />
-                <input 
-                    type="text" 
-                    placeholder="Teacher Username" 
+            </div>
+    
+            {/* Teacher Username */}
+            <div>
+                <input
+                    type="text"
+                    placeholder="Teacher Username"
                     value={teacherUsername}
-                    onChange={(e) => setTeacherUsername(e.target.value)} 
-                    required 
+                    onChange={(e) => setTeacherUsername(e.target.value)}
+                    required
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                 />
-                <button type="submit" disabled={loading}>
-                    {loading ? "Creating..." : "Create Class"}
-                </button>
-            </form>
-        </div>
+            </div>
+    
+            {/* Submit Button */}
+            <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 bg-blue-500 text-white rounded-lg disabled:bg-gray-400 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            >
+                {loading ? "Creating..." : "Create Class"}
+            </button>
+        </form>
+    </div>
+    
     );
 };
 
