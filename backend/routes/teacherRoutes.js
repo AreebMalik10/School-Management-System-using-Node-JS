@@ -55,11 +55,7 @@ router.post('/createLeaveRequest', (req, res) => {
     });
 });
 
-
-
-
 // Fetch Leave Requests for a Teacher by Username
-// Fetch Leave Requests for Logged-In Teacher
 router.get('/viewLeaveRequests1', (req, res) => {
     const teacherUsername = req.query.username; // Get the username from the query parameters
 
@@ -88,11 +84,83 @@ router.get('/viewLeaveRequests1', (req, res) => {
 });
 
 
+// Express route for fetching students by teacher's username
+// Express route for fetching students by teacher's username
+router.post('/getStudentsByTeacher', (req, res) => {
+    const { username } = req.body;  // Teacher's username from the request body
+
+    // Pehle teacher ka class_id dhoondhna
+    db.query(`
+        SELECT id FROM classes WHERE teacher_username = ?`, [username], (err, classResults) => {
+        if (err) {
+            return res.status(500).json({ message: 'Class ke liye error aayi' });
+        }
+
+        if (classResults.length === 0) {
+            return res.status(404).json({ message: 'Is teacher ke liye koi class nahi mili' });
+        }
+
+        const classId = classResults[0].id;  // Class id le li
+
+        // Ab usi class_id ke students dhoondhna
+        db.query(`
+            SELECT name, regNo, class, username, section FROM students WHERE class_id = ?`, [classId], (err, studentResults) => {
+            if (err) {
+                return res.status(500).json({ message: 'Students ke liye error aayi' });
+            }
+
+            if (studentResults.length === 0) {
+                return res.status(404).json({ message: 'Is class ke liye koi students nahi mile' });
+            }
+
+            res.json({ students: studentResults });  // Students ki details bhej rahe hain
+        });
+    });
+});
 
 
 
+router.post('/attendance', (req, res) => {
+    const { student_id, status, date, teacher_username, admin_id } = req.body;
 
+    if (!student_id || !status || !date || !teacher_username || !admin_id) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
 
+    // Validate student belongs to teacher's class
+    db.query(
+        `SELECT s.* 
+         FROM students s 
+         JOIN classes c ON s.class_id = c.id 
+         WHERE s.student_id = ? AND c.teacher_username = ? AND c.admin_id = ?`,
+        [student_id, teacher_username, admin_id],
+        (error, results) => {
+            if (error) {
+                console.error('Error validating student:', error);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            if (!results.length) {
+                return res.status(403).json({ error: 'Unauthorized action or invalid student' });
+            }
+
+            // Save attendance
+            db.query(
+                `INSERT INTO attendance (student_id, teacher_username, admin_id, date, status)
+                 VALUES (?, ?, ?, ?, ?)`,
+                [student_id, teacher_username, admin_id, date, status],
+                (insertError, insertResults) => {
+                    if (insertError) {
+                        console.error('Error saving attendance:', insertError);
+                        return res.status(500).json({ error: 'Database error' });
+                    }
+
+                    res.json({ message: 'Attendance marked successfully' });
+                }
+            );
+        }
+    );
+});
 
 
 module.exports = router;

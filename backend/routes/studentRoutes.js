@@ -31,39 +31,19 @@ router.get('/getstudentdata/:username', (req, res)=>{
 })
 
 //student ki class or subjects ki details la rahay
-// Student route: Fetch student data along with class and subject information
-router.get('/getstudentdata1/:username', async (req, res) => {
-    try {
-        const { username } = req.params;
-
-        // Fetch student data
-        const student = await Student.findOne({ username }).exec();
-        
-        if (!student) {
-            return res.status(404).json({ error: 'Student not found' });
-        }
-
-        // Fetch class data using class_id
-        const classData = await Class.findById(student.class_id).exec();
-
-        if (!classData) {
-            return res.status(404).json({ error: 'Class not found' });
-        }
-
-        // Fetch subjects data using class_id
-        const subjects = await Subject.find({ class_id: student.class_id }).exec();
-
-        // Send all the data together
-        res.json({
-            student,
-            classData,
-            subjects
+router.get('/getstudentdata1/:username', (req, res) => {
+    const username = req.params.username;
+    Student.findOne({ username: username })
+        .then(student => {
+            if (!student) {
+                return res.status(404).json({ error: 'Student data not found' });
+            }
+            res.json(student);
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({ error: 'Server error' });
         });
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Error fetching student data' });
-    }
 });
 
 

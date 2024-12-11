@@ -20,6 +20,7 @@ import DisplayAssignedSubjectsToTeacher from './components/displayAssignedSubjec
 import AdminCreateStudent from './components/adminCreateStudent';
 import StudentList from './components/studentList';
 import StudentViewHisChallan from './components/studentViewHisChallan';
+import TeacherFetchStudent from './components/teacherFetchStudent';
 
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
         <Route path='/createstudent' element={<AdminCreateStudent/>}></Route>
         <Route path='/studentlist' element={<StudentList/>}></Route>
         <Route path='/studentviewchallan' element={<StudentViewHisChallan/>}></Route>
+        <Route path='/teacherviewstudent' element={<TeacherFetchStudent/>}></Route>
       </Routes>
       
     </div>
