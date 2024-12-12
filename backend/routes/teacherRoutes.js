@@ -85,7 +85,6 @@ router.get('/viewLeaveRequests1', (req, res) => {
 
 
 // Express route for fetching students by teacher's username
-// Express route for fetching students by teacher's username
 router.post('/getStudentsByTeacher', (req, res) => {
     const { username } = req.body;  // Teacher's username from the request body
 
@@ -100,11 +99,13 @@ router.post('/getStudentsByTeacher', (req, res) => {
             return res.status(404).json({ message: 'Is teacher ke liye koi class nahi mili' });
         }
 
-        const classId = classResults[0].id;  // Class id le li
+        const classId = classResults[0].id;  // Teacher ka class_id le liya
 
         // Ab usi class_id ke students dhoondhna
         db.query(`
-            SELECT name, regNo, class, username, section FROM students WHERE class_id = ?`, [classId], (err, studentResults) => {
+            SELECT name, regNo, class, username, section 
+            FROM students 
+            WHERE class_id = ?`, [classId], (err, studentResults) => {
             if (err) {
                 return res.status(500).json({ message: 'Students ke liye error aayi' });
             }
@@ -117,6 +118,10 @@ router.post('/getStudentsByTeacher', (req, res) => {
         });
     });
 });
+
+
+
+
 
 
 

@@ -23,16 +23,21 @@ router.post('/createStudent', async (req, res) => {
     }
 
     try {
-        // Find the class_id based on class and section
-        const findClassQuery = `SELECT id FROM classes WHERE class_name = ? AND section = ?`;
-        db.query(findClassQuery, [studentClass, section], async (err, result) => {
+        // Find the class_id based on class, section, and adminId
+        const findClassQuery = `
+            SELECT id 
+            FROM classes 
+            WHERE class_name = ? 
+            AND section = ? 
+            AND admin_id = ?`;  // Ensure admin_id is also part of the query
+        db.query(findClassQuery, [studentClass, section, adminId], async (err, result) => {
             if (err) {
                 console.error('Error fetching class_id:', err);
                 return res.status(500).json({ message: 'Error fetching class_id' });
             }
 
             if (result.length === 0) {
-                return res.status(400).json({ message: 'Class and section not found' });
+                return res.status(400).json({ message: 'Class, section, and admin ID mismatch' });
             }
 
             const classId = result[0].id;
@@ -59,6 +64,7 @@ router.post('/createStudent', async (req, res) => {
         res.status(500).json({ message: 'Error creating student' });
     }
 });
+
 
 // Get students route
 router.get('/getStudents', (req, res) => {

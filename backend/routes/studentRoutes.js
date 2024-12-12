@@ -31,22 +31,49 @@ router.get('/getstudentdata/:username', (req, res)=>{
 })
 
 //student ki class or subjects ki details la rahay
-router.get('/getstudentdata1/:username', (req, res) => {
-    const username = req.params.username;
-    Student.findOne({ username: username })
-        .then(student => {
-            if (!student) {
-                return res.status(404).json({ error: 'Student data not found' });
+router.post('/getStudentClassData', (req, res) => {
+    const { username } = req.body; // Frontend se username receive ho raha hai
+
+    // Agar username nahi hai toh error send karo
+    if (!username) {
+        return res.status(400).json({ error: 'Username is required' });
+    }
+
+    // Step 1: Students table se class_id fetch karna
+    const getClassIdQuery = 'SELECT class_id FROM students WHERE username = ?';
+
+    db.query(getClassIdQuery, [username], (err, classIdResults) => {
+        if (err) {
+            console.error('Error fetching class_id:', err.message);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        // Agar class_id nahi mila
+        if (classIdResults.length === 0 || !classIdResults[0].class_id) {
+            return res.status(404).json({ message: 'No class data found for this username' });
+        }
+
+        const classId = classIdResults[0].class_id;
+
+        // Step 2: Classes table se class data fetch karna using class_id
+        const getClassDataQuery = 'SELECT * FROM classes WHERE id = ?';
+
+        db.query(getClassDataQuery, [classId], (err, classDataResults) => {
+            if (err) {
+                console.error('Error fetching class data:', err.message);
+                return res.status(500).json({ error: 'Internal server error' });
             }
-            res.json(student);
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).json({ error: 'Server error' });
+
+            // Agar class data nahi mila
+            if (classDataResults.length === 0) {
+                return res.status(404).json({ message: 'No class data found for this class_id' });
+            }
+
+            // Response me class data send karo
+            res.json(classDataResults[0]);
         });
+    });
 });
-
-
 
 
 // Get Challan by Student Username

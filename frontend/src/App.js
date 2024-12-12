@@ -21,6 +21,8 @@ import AdminCreateStudent from './components/adminCreateStudent';
 import StudentList from './components/studentList';
 import StudentViewHisChallan from './components/studentViewHisChallan';
 import TeacherFetchStudent from './components/teacherFetchStudent';
+import StudentClassDetails from './components/studentClassDetailsForAdmin';
+import StudentClassDetailsForAdmin from './components/studentClassDetailsForAdmin';
 
 
 function App() {
@@ -49,6 +51,8 @@ function App() {
         <Route path='/studentlist' element={<StudentList/>}></Route>
         <Route path='/studentviewchallan' element={<StudentViewHisChallan/>}></Route>
         <Route path='/teacherviewstudent' element={<TeacherFetchStudent/>}></Route>
+        <Route path='/studentclassdetailsforadmin' element={<StudentClassDetailsForAdmin/>}></Route>
+        <Route path='/studentclassdetails' element={<StudentClassDetails/>}></Route>
       </Routes>
       
     </div>
