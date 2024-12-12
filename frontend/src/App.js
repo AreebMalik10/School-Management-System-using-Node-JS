@@ -23,6 +23,10 @@ import StudentViewHisChallan from './components/studentViewHisChallan';
 import TeacherFetchStudent from './components/teacherFetchStudent';
 import StudentClassDetails from './components/studentClassDetailsForAdmin';
 import StudentClassDetailsForAdmin from './components/studentClassDetailsForAdmin';
+import StudentSubjects from './components/studentSubjects';
+import StudentLeaveRequest from './components/studentLeaveRequest';
+import TeacherViewLeaveRequest from './components/teacherViewLeaveRequest';
+import StudentViewLeaveRequest from './components/studentViewLeaveRequest';
 
 
 function App() {
@@ -53,6 +57,10 @@ function App() {
         <Route path='/teacherviewstudent' element={<TeacherFetchStudent/>}></Route>
         <Route path='/studentclassdetailsforadmin' element={<StudentClassDetailsForAdmin/>}></Route>
         <Route path='/studentclassdetails' element={<StudentClassDetails/>}></Route>
+        <Route path='/studentsubject' element={<StudentSubjects/>}></Route>
+        <Route path='/studentleaverequest' element={<StudentLeaveRequest/>}></Route>
+        <Route path='/teacherviewleaverequest' element={<TeacherViewLeaveRequest/>}></Route>
+        <Route path='/studentviewleaverequest' element={<StudentViewLeaveRequest/>}></Route>
       </Routes>
       
     </div>

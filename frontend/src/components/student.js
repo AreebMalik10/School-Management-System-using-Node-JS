@@ -4,6 +4,9 @@ import axios from 'axios';
 import { useLocation, useNavigate } from "react-router-dom";
 import StudentViewHisChallan from './studentViewHisChallan';
 import StudentClassDetails from './studentClassDetailsForAdmin';
+import StudentSubjects from './studentSubjects';
+import StudentLeaveRequest from './studentLeaveRequest';
+import StudentViewLeaveRequest from './studentViewLeaveRequest';
 
 export default function Student() {
     const location = useLocation();
@@ -107,13 +110,24 @@ export default function Student() {
 
 
             <div>
-
                 <StudentViewHisChallan />
             </div>
 
             <div>
                 <StudentClassDetails/>
 
+            </div>
+
+            <div>
+                <StudentSubjects/>
+            </div>
+
+            <div>
+                <StudentLeaveRequest/>
+            </div>
+
+            <div>
+                <StudentViewLeaveRequest/>
             </div>
 
          

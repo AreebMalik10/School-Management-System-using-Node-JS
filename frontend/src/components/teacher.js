@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from "react-router-dom";
 import TeacherFetchStudent from './teacherFetchStudent';
+import TeacherViewLeaveRequest from './teacherViewLeaveRequest';
 
 
 export default function Teacher() {
     const location = useLocation();
     const navigate = useNavigate();
+
     const { name, username } = location.state || {};
 
     const [leaveRequests, setLeaveRequests] = useState([]);  // State to store leave requests
@@ -82,6 +84,7 @@ export default function Teacher() {
 
 
     return (
+        <>
         <div className="flex flex-col items-left  bg-gray-100">
             <div className="text-center">
                 <h1>Welcome to the Teacher Dashboard</h1>
@@ -226,6 +229,9 @@ export default function Teacher() {
             <TeacherFetchStudent />
 
         </div>
+
+        <TeacherViewLeaveRequest/>
+        </>
 
     )
 }

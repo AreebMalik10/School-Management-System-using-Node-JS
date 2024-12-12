@@ -120,9 +120,51 @@ router.post('/getStudentsByTeacher', (req, res) => {
 });
 
 
+//student ki leave request fetch krwarahy
+router.get('/get-leave-requests', (req, res) =>{
+    const { username } = req.query;
+
+    db.query("SELECT * FROM student_leaves WHERE classTeacherUsername = ?", [username], (err, results) =>{
+        if(err) {
+            console.error(err);
+            return res.status(500).json({ message: "No leave requests found "});
+
+        }
+
+        res.status(200).json({ leaveRequests: results});
+    })
+})
 
 
 
+
+//Approve or Reject
+router.post('/update-leave-request-status', (req, res) =>{
+    const { leaveRequestId, status} = req.body;
+
+
+    if(status !== 'approved' && status !== 'rejected'){
+        return res.status(400).json({ message: "Invalid Status"});
+
+    }
+
+    db.query(
+        "UPDATE student_leaves SET status = ? WHERE id = ?",
+        [status, leaveRequestId],
+        (err, result) =>{
+            if (err) {
+                console.error(err);
+                return res.status(500).json({message: "Database Error"});
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(400).json({ message:"Leave request not found"});
+            }
+
+            res.status(200).json({ message: "Leave request updated successfully"})
+        }
+    )
+})
 
 
 router.post('/attendance', (req, res) => {
