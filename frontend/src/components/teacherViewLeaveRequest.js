@@ -84,6 +84,12 @@ export default function TeacherViewLeaveRequest() {
                 <p className="font-semibold">
                   Student Username: {leave.student_username}
                 </p>
+                <p className="font-semibold">
+                    Student Class: {leave.class_name}
+                </p>
+                <p className='font-semibold'>
+                    Student Section: {leave.section}
+                </p>
                 <p>Reason: {leave.reason}</p>
                 <p>
                   Dates: {leave.startDate} to {leave.endDate}

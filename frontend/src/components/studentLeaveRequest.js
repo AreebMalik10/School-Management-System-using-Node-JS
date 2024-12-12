@@ -9,6 +9,8 @@ export default function StudentLeaveRequest() {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [classTeacherUsername, setClassTeacherUsername] = useState('');
+    const [class_name, setClass_name] = useState('');
+    const [section, setSection] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
 
@@ -22,6 +24,8 @@ export default function StudentLeaveRequest() {
             endDate,
             classTeacherUsername,
             username: studentUsername,
+            class_name,
+            section,
         };
 
         try {
@@ -63,6 +67,29 @@ export default function StudentLeaveRequest() {
                             className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                     </div>
+
+                    <div className="mb-4">
+                        <label className="block text-gray-600 font-medium">Class Name</label>
+                        <input 
+                            type="text" 
+                            value={class_name} 
+                            onChange={(e) => setClass_name(e.target.value)} 
+                            required 
+                            className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="block text-gray-600 font-medium">Section</label>
+                        <input 
+                            type="text" 
+                            value={section} 
+                            onChange={(e) => setSection(e.target.value)} 
+                            required 
+                            className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
+                    
 
                     <div className="mb-4">
                         <label className="block text-gray-600 font-medium">Reason:</label>

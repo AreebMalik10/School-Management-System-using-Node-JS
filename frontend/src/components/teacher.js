@@ -81,6 +81,7 @@ export default function Teacher() {
             setError(error.response?.data?.message || 'An error occurred while fetching leave requests');
         }
     };
+    
 
 
     return (
@@ -225,12 +226,15 @@ export default function Teacher() {
                 )}
             </div>
 
+              <div>
+              <TeacherFetchStudent />
+              </div>
 
-            <TeacherFetchStudent />
-
+              <div>
+              <TeacherViewLeaveRequest/>
+              </div>
+        
         </div>
-
-        <TeacherViewLeaveRequest/>
         </>
 
     )

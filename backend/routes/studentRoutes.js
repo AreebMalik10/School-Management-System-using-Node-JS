@@ -157,7 +157,7 @@ router.get('/getChallanByUsername', (req, res) => {
 
 //Student create leave request 
 router.post('/create-leave-request', (req, res) => {
-    const { reason, startDate, endDate, classTeacherUsername, username: studentUsername } = req.body; // Get username from request body
+    const { reason, startDate, endDate, classTeacherUsername, class_name, section, username: studentUsername } = req.body; // Get username from request body
 
     // Step 1: Fetch studentId from students table using student_username
     db.query("SELECT student_id FROM students WHERE username = ?", [studentUsername], (err, student) => {
@@ -187,8 +187,8 @@ router.post('/create-leave-request', (req, res) => {
 
             // Step 3: Insert the leave request into student_leaves table
             db.query(
-                "INSERT INTO student_leaves (studentId, student_username, classTeacherUsername, classTeacherId, reason, startDate, endDate) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                [studentId, studentUsername, classTeacherUsername, classTeacherId, reason, startDate, endDate],
+                "INSERT INTO student_leaves (studentId, student_username, classTeacherUsername, classTeacherId, reason, startDate, endDate, class_name, section) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                [studentId, studentUsername, classTeacherUsername, classTeacherId, reason, startDate, endDate, class_name, section],
                 (err, result) => {
                     if (err) {
                         console.error(err);
